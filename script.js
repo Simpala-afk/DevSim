@@ -26,8 +26,8 @@ window.onload = function() {
         balance = 200;
         saveBalance();
     } else {
-        balance = parseFloat(localStorage.getItem('user_balance')) || 200;
-    }
+    balance = parseFloat(localStorage.getItem('user_balance')) || 200; // Тут всё ок
+}
     
     // Загрузка темы
     if (localStorage.getItem('theme')) {
@@ -57,9 +57,11 @@ function saveBalance() {
 }
 
 function updateBalanceUI() {
-    const displays = document.querySelectorAll('.balance-amount');
+    // Ищем элементы и по твоему новому классу .balance-display, и по старому .balance-amount
+    const displays = document.querySelectorAll('.balance-display, .balance-amount');
     displays.forEach(el => {
-        el.innerText = balance.toFixed(2);
+        // Добавляем красивую иконку и знак рубля, как в CSS
+        el.innerText = `💸 Баланс: ${balance.toFixed(2)} ₽`;
     });
 }
 
@@ -288,8 +290,9 @@ function handleCrashAction() {
         let rand = Math.random();
         let crashPoint = 1.01;
         if (rand > 0.08) {
-            crashPoint = parseFloat((1.01 + (Math.random() * 3)).toFixed(2));
-        }
+    // График может случайно вырасти до 15x и выше
+    crashPoint = parseFloat((1.01 + (Math.random() * Math.random() * 15)).toFixed(2));
+}
         
         crashState = {
             running: true,
