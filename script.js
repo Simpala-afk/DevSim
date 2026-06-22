@@ -134,11 +134,11 @@ function claimBonus() {
     const now = Date.now();
     if (nextBonus && now < parseInt(nextBonus)) return;
 
-    const bonusAmount = 10000; 
+    const bonusAmount = 50; 
     balance += bonusAmount;
     saveBalance();
     
-    localStorage.setItem('next_bonus_time', now + 36); // 1 час КД
+    localStorage.setItem('next_bonus_time', now + 3600000); // 1 час КД
     showNotification(`Получен бонус +${bonusAmount} ₽!`, "success");
     updateBonusTimer();
 }
