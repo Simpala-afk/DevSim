@@ -1,4 +1,39 @@
 // ==========================================
+// ГЛОБАЛЬНОЕ СОСТОЯНИЕ И СИСТЕМА ИНИЦИАЛИЗАЦИИ
+// ==========================================
+let balance = 0;
+
+window.onload = function() {
+    // 1. Создаем контейнер для уведомлений, если его нет
+    if (!document.getElementById('notification-container')) {
+        let container = document.createElement('div');
+        container.id = 'notification-container';
+        document.body.appendChild(container);
+    }
+
+    // 2. Проверяем первый вход игрока
+    if (!localStorage.getItem('has_visited')) {
+        localStorage.setItem('has_visited', 'true');
+        balance = 200; // Стартовый баланс новичка
+        saveBalance();
+    } else {
+        balance = parseFloat(localStorage.getItem('user_balance')) || 0;
+    }
+    
+    // 3. Запускаем таймеры обновлений
+    setInterval(updateDonateButtonsTimers, 1000);
+    setInterval(updateBonusTimer, 1000); 
+
+    // 4. Обновляем интерфейс
+    updateBalanceUI();
+    if (typeof updateBonusTimer === "function") updateBonusTimer();
+    
+    // 5. Инициализируем графику режимов
+    if (typeof generateRouletteTape === "function") generateRouletteTape(); 
+    if (typeof updateDiceValues === "function") updateDiceValues(); 
+    if (typeof drawWheelGraphics === "function") drawWheelGraphics(); 
+};
+// ==========================================
 // РЕЖИМ 1: МИНЫ (MINES)
 // ==========================================
 function startMinesGame() {
