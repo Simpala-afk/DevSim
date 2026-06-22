@@ -1,4 +1,201 @@
-/* Уведомления */
+/* ==========================================
+   ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ И ТЕМЫ ОФОРМЛЕНИЯ
+   ========================================== */
+.dark-theme {
+    --bg-color: #1e1e24;
+    --card-bg: #2a2a35;
+    --text-color: #f1f2f6;
+    --border-color: #3f3f4e;
+    --sidebar-bg: #141418;
+    --btn-secondary: #4b4b5c;
+}
+
+.light-theme {
+    --bg-color: #f1f2f6;
+    --card-bg: #ffffff;
+    --text-color: #2f3542;
+    --border-color: #ced6e0;
+    --sidebar-bg: #dfe4ea;
+    --btn-secondary: #a4b0be;
+}
+
+:root {
+    --primary: #5352ed;
+    --success: #2ed573;
+    --danger: #ff4757;
+    --warning: #ffa502;
+    --dark: #2f3542;
+}
+
+/* Сброс базовых стилей */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    overflow: hidden;
+}
+
+/* Шапка сайта */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background-color: var(--sidebar-bg);
+    border-bottom: 1px solid var(--border-color);
+    height: 70px;
+}
+
+.brand {
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.balance-display {
+    background-color: var(--bg-color);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    border: 1px solid var(--border-color);
+}
+
+/* Главный контейнер макета */
+.app-container {
+    display: flex;
+    height: calc(100vh - 70px);
+}
+
+/* Боковая панель навигации */
+.sidebar {
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    text-align: left;
+    font-weight: 500;
+}
+
+.nav-btn:hover {
+    background-color: var(--bg-color);
+}
+
+.nav-btn.active {
+    background-color: var(--primary);
+    color: #ffffff;
+}
+
+/* Игровая зона */
+.game-area {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.game-section {
+    display: none;
+}
+
+.game-section.active {
+    display: block;
+}
+
+/* Общие стили для кнопок */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    color: #ffffff;
+    text-align: center;
+}
+
+.btn-primary { background-color: var(--primary); }
+.btn-primary:hover { opacity: 0.9; }
+.btn-success { background-color: var(--success); }
+.btn-success:hover { opacity: 0.9; }
+.btn-danger { background-color: var(--danger); }
+.btn-danger:hover { opacity: 0.9; }
+.btn-secondary { background-color: var(--btn-secondary); color: var(--text-color); }
+.btn-secondary:hover { opacity: 0.9; }
+.btn-dark { background-color: var(--dark); }
+.btn-bonus { background-color: #eccc68; color: #2f3542; }
+
+/* Общие инпуты */
+input[type="number"], select {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 15px;
+    font-weight: 600;
+    outline: none;
+    width: 100%;
+}
+
+/* Модальные окна */
+.modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex; justify-content: center; align-items: center;
+    opacity: 0; pointer-events: none; z-index: 10000;
+    transition: opacity 0.3s ease;
+}
+
+.modal.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* ==========================================
+   УВЕДОМЛЕНИЯ И СЕТКА (ОРИГИНАЛЬНЫЙ CSS)
+   ========================================== */
 #notification-container {
     position: fixed;
     bottom: 20px;
@@ -25,103 +222,251 @@
 .toast-danger { background-color: #ff4757; }
 .toast-info { background-color: #5352ed; }
 
-/* Сетка макета */
-.game-wrapper { display: flex; gap: 30px; background-color: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); min-height: 450px; }
-.flex-column { flex-direction: column; justify-content: center; align-items: center; }
-.controls-panel { width: 300px; display: flex; flex-direction: column; gap: 15px; }
-.board-panel { flex: 1; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.1); border-radius: 8px; border: 1px dashed var(--border-color); }
-.input-group { display: flex; flex-direction: column; gap: 5px; }
-.input-group input { padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); font-size: 16px; }
-.game-status { padding: 12px; border-radius: 6px; background: rgba(255,255,255,0.05); font-style: italic; border-left: 4px solid var(--primary); margin-top: auto;}
-.text-center { text-align: center; margin-top: 20px; border: none; border-top: 2px dashed var(--border-color); width: 100%; }
+/* Сетка макета режимов */
+.game-wrapper {
+    display: flex;
+    gap: 30px;
+    background-color: var(--card-bg);
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    min-height: 400px;
+}
+.flex-column { flex-direction: column; min-height: auto; gap: 15px; }
 
-/* МИНЫ */
-.mines-grid { display: grid; grid-template-columns: repeat(5, 65px); grid-template-rows: repeat(5, 65px); gap: 10px; }
-.mine-cell { background-color: var(--btn-secondary); border-radius: 8px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: bold; border: 1px solid rgba(0,0,0,0.2); user-select: none; }
-.mine-cell.safe { background-color: var(--success); color: white; cursor: default; }
-.mine-cell.exploded { background-color: var(--danger); color: white; cursor: default; }
-
-/* КРАШ */
-.crash-board { position: relative; background: #0c0d14 !important; overflow: hidden; min-height: 300px; }
-.crash-graph-container { width: 100%; height: 100%; position: relative; display: flex; justify-content: center; align-items: center; }
-#crash-multiplier { font-size: 64px; font-weight: 800; color: #fff; text-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 5; text-align: center; }
-
-/* ДОПОЛНИТЕЛЬНЫЕ ЭЛЕМЕНТЫ ДЛЯ ДАЙСА */
-.dice-info-block {
-    background: rgba(255,255,255,0.03);
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 14px;
+.controls-panel {
+    width: 320px;
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    border: 1px solid var(--border-color);
+    gap: 20px;
+}
+.input-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.input-box label {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
 }
 
-/* СТИЛИ ДЛЯ МОНЕТКИ (COINFLIP) */
+.board-panel {
+    flex: 1;
+    background-color: var(--bg-color);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 20px;
+}
+
+.game-status {
+    margin-top: 15px;
+    font-size: 15px;
+    font-weight: 500;
+    opacity: 0.9;
+}
+.text-center { text-align: center; }
+
+/* МИНЫ */
+.mines-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 65px);
+    grid-template-rows: repeat(5, 65px);
+    gap: 10px;
+}
+.mine-cell {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2);
+}
+.mine-cell:hover { background-color: var(--sidebar-bg); }
+.mine-cell.safe { background-color: rgba(46, 213, 115, 0.2); border-color: #2ed573; box-shadow: none; }
+.mine-cell.exploded { background-color: rgba(255, 71, 87, 0.2); border-color: #ff4757; box-shadow: none; }
+
+/* КРАШ */
+.crash-graph {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+#crash-multiplier {
+    font-size: 64px;
+    font-weight: 800;
+    font-family: monospace;
+}
+
+/* ДАЙС */
+.dice-stats-row {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    background-color: var(--card-bg);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
+.stat-block { text-align: center; }
+.stat-label { font-size: 12px; opacity: 0.7; margin-bottom: 5px; }
+.stat-val { font-size: 18px; font-weight: bold; }
+.dice-action-buttons {
+    display: flex;
+    width: 100%;
+    gap: 15px;
+}
+.dice-action-buttons button { flex: 1; }
+
+/* МОНЕТКА */
 .coin-container {
     perspective: 1000px;
-    width: 140px; height: 140px;
+    width: 150px;
+    height: 150px;
+    margin-bottom: 20px;
 }
-.coin {
-    width: 100%; height: 100%;
+#coin {
+    width: 100%;
+    height: 100%;
     position: relative;
     transform-style: preserve-3d;
-    transition: transform 3s cubic-bezier(0.1, 0.8, 0.1, 1);
 }
-.coin .side {
-    position: absolute; width: 100%; height: 100%;
-    border-radius: 50%; display: flex; flex-direction: column;
-    justify-content: center; align-items: center;
-    font-weight: bold; font-size: 18px; backface-visibility: hidden;
-    border: 5px solid rgba(255,255,255,0.2);
+.coin-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 48px;
+    font-weight: bold;
+    border: 6px solid #ffa502;
     box-shadow: 0 8px 20px rgba(0,0,0,0.4);
 }
-.coin .heads {
-    background: linear-gradient(135deg, #ffd700, #ffa502);
-    color: #5d4037;
+.heads-face { background: radial-gradient(circle, #ffeaa7, #ffa502); color: #d35400; }
+.tails-face { background: radial-gradient(circle, #f1f2f6, #ced6e0); color: #2f3542; transform: rotateY(180deg); }
+
+/* КОЛЕСО */
+.wheel-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-.coin .tails {
-    background: linear-gradient(135deg, #bdc3c7, #7f8c8d);
-    color: #2c3e50;
-    transform: rotateY(180deg);
-}
-/* АНИМАЦИЯ КОЛЕСА */
 #wheel-canvas {
-    background: transparent;
-    transition: transform 5s cubic-bezier(0.1, 0.8, 0.1, 1);
+    max-width: 320px;
+    width: 100%;
+    border-radius: 50%;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
 }
 .wheel-pointer {
-    position: absolute; top: 15px; left: 50%;
-    transform: translateX(-50%); font-size: 28px;
-    color: var(--danger); z-index: 10;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    position: absolute;
+    top: -5px;
+    font-size: 28px;
+    z-index: 10;
+    color: #fff;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
 }
 
 /* РУЛЕТКА */
-.roulette-wheel-container { position: relative; width: 600px; height: 80px; border: 4px solid var(--border-color); border-radius: 10px; overflow: hidden; background: #15161b; margin: 20px 0; }
-.roulette-marker { position: absolute; left: 50%; top: 0; width: 4px; height: 100%; background: var(--warning); z-index: 10; transform: translateX(-50%); box-shadow: 0 0 10px var(--warning); }
-.roulette-tape { display: flex; position: absolute; left: 0; top: 0; height: 100%; transition: transform 0s cubic-bezier(0.1, 0.8, 0.1, 1); }
-.roulette-cell { width: 80px; height: 100%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px; color: #fff; flex-shrink: 0; }
-.cell-red { background-color: var(--danger); }
-.cell-black { background-color: #222; }
-.cell-green { background-color: var(--success); }
-.bet-box-container { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
-.bet-box-container input { padding: 12px; font-size: 18px; text-align: center; border-radius: 6px; background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); width: 200px; }
-.bet-buttons { display: flex; gap: 10px; width: 100%; justify-content: center; }
+.roulette-wheel-container {
+    width: 100%;
+    height: 90px;
+    background-color: #141418;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 25px;
+}
+.roulette-tape {
+    display: flex;
+    position: absolute;
+    left: 0;
+    top: 5px;
+    height: 75px;
+}
+.roulette-cell {
+    width: 80px;
+    height: 75px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #fff;
+    border-right: 1px solid rgba(0,0,0,0.3);
+}
+.cell-red { background-color: #ff4757; }
+.cell-black { background-color: #2f3542; }
+.cell-green { background-color: #2ed573; }
+
+.roulette-marker {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 100%;
+    background-color: #ffa502;
+    z-index: 5;
+    box-shadow: 0 0 10px #ffa502;
+}
+.bet-buttons {
+    display: flex;
+    width: 100%;
+    gap: 10px;
+}
+.bet-buttons button { flex: 1; }
 
 /* СЛОТЫ */
-.slots-machine { display: flex; gap: 20px; margin: 30px 0; }
-.slot-reel { width: 90px; height: 120px; background: #15161b; border: 3px solid var(--border-color); border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 50px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
-.slots-controls { display: flex; gap: 15px; }
-.slots-controls input { padding: 12px; font-size: 18px; width: 120px; text-align: center; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); }
+.slots-machine {
+    display: flex;
+    gap: 15px;
+    background-color: #141418;
+    padding: 20px;
+    border-radius: 12px;
+    border: 3px solid var(--border-color);
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    margin-bottom: 20px;
+}
+.slot-reel {
+    width: 85px;
+    height: 100px;
+    background-color: #fff;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 45px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+.slots-controls {
+    display: flex;
+    width: 100%;
+    max-width: 300px;
+    gap: 10px;
+}
+.slots-controls input { flex: 1; }
 
-/* =========================================================
-   МЕДИА-ЗАПРОСЫ ДЛЯ СМАРТФОНОВ (МОБИЛЬНАЯ АДАПТАЦИЯ)
-   ========================================================= */
+/* АДАПТИВНОСТЬ ДЛЯ ТЕЛЕФОНОВ */
 @media (max-width: 768px) {
-    body { overflow-y: auto; }
-    header { flex-direction: column; gap: 12px; padding: 12px; text-align: center; }
+    .app-header { flex-direction: column; gap: 12px; padding: 12px; text-align: center; height: auto; }
     .header-controls { width: 100%; justify-content: center; flex-wrap: wrap; gap: 8px; }
     .balance-display { font-size: 15px; padding: 6px 12px; width: 100%; text-align: center; }
     
@@ -137,13 +482,7 @@
     .controls-panel { width: 100%; }
     .board-panel { width: 100%; padding: 25px 5px; }
 
-    .mines-grid { grid-template-columns: repeat(5, 1fr); grid-template-rows: auto; gap: 6px; width: 100%; max-width: 320px; }
-    .mine-cell { aspect-ratio: 1 / 1; font-size: 20px; }
-    .crash-board { min-height: 200px; height: 200px; }
-    #crash-multiplier { font-size: 42px; }
-    .roulette-wheel-container { width: 100%; max-width: 100%; }
-    .bet-buttons { flex-direction: column; width: 100%; }
-    .bet-buttons .btn { width: 100%; padding: 12px; }
-    .bet-box-container input { width: 100%; }
-    .slot-reel { width: 70px; height: 100px; font-size: 36px; }
+    .mines-grid { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .mine-cell { height: 55px; font-size: 20px; }
+    .slot-reel { width: 70px; height: 85px; font-size: 36px; }
 }
