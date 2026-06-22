@@ -45,7 +45,7 @@ body {
 /* Шапка сайта */
 .app-header {
     display: flex !important;
-    justify-content: space-between !important;
+    justify-content: space-between !important; /* Баланс и бренд слева, элементы управления — строго справа! */
     align-items: center !important;
     padding: 15px 25px;
     background-color: var(--sidebar-bg);
@@ -63,6 +63,7 @@ body {
     display: flex !important;
     align-items: center !important;
     gap: 15px;
+    margin-left: auto; /* Дополнительно гарантирует прижатие к правому краю */
 }
 
 .balance-display {
@@ -71,8 +72,8 @@ body {
     border-radius: 20px;
     font-weight: bold;
     border: 1px solid var(--border-color);
+    white-space: nowrap;
 }
-
 /* Главный контейнер макета */
 .app-container {
     display: flex;
