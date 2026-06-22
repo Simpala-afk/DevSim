@@ -39,428 +39,201 @@
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
-    overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Шапка сайта */
 .app-header {
-    display: flex !important;
-    justify-content: space-between !important; /* Баланс и бренд слева, элементы управления — строго справа! */
-    align-items: center !important;
-    padding: 15px 25px;
-    background-color: var(--sidebar-bg);
-    border-bottom: 1px solid var(--border-color);
     height: 70px;
-}
-
-.brand {
-    font-size: 20px;
-    font-weight: bold;
-    letter-spacing: 1px;
-}
-
-.header-controls {
-    display: flex !important;
-    align-items: center !important;
-    gap: 15px;
-    margin-left: auto; /* Дополнительно гарантирует прижатие к правому краю */
-}
-
-.balance-display {
-    background-color: var(--bg-color);
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: bold;
-    border: 1px solid var(--border-color);
-    white-space: nowrap;
-}
-/* Главный контейнер макета */
-.app-container {
-    display: flex;
-    height: calc(100vh - 70px);
-}
-
-/* Боковая панель навигации */
-.sidebar {
-    width: 260px;
     background-color: var(--sidebar-bg);
-    border-right: 1px solid var(--border-color);
-    padding: 20px 10px;
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-    overflow-y: auto;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    border-bottom: 1px solid var(--border-color);
 }
-
-.nav-btn {
+.logo {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+.header-controls {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 15px;
-    background: none;
-    border: none;
-    color: var(--text-color);
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 15px;
-    text-align: left;
-    font-weight: 500;
+    gap: 15px;
 }
-
-.nav-btn:hover {
-    background-color: var(--bg-color);
-}
-
-.nav-btn.active {
-    background-color: var(--primary);
+.balance-display {
+    background: linear-gradient(135deg, #2ed573, #26af5f);
     color: #ffffff;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 16px;
+    box-shadow: 0 4px 10px rgba(46, 213, 115, 0.2);
+    cursor: pointer;
 }
 
-/* Игровая зона */
+/* Сетка основного контейнера: Контент слева, Меню СПРАВА */
+.app-container {
+    display: flex;
+    flex: 1;
+    flex-direction: row; /* Направление элементов в строчку */
+}
+
+/* Игровая зона слева */
 .game-area {
     flex: 1;
     padding: 30px;
     overflow-y: auto;
 }
 
-.game-section {
-    display: none;
+/* Боковая панель меню СПРАВА */
+.sidebar {
+    width: 250px;
+    background-color: var(--sidebar-bg);
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-left: 1px solid var(--border-color); /* Бордюр слева от меню */
 }
 
-.game-section.active {
-    display: block;
+/* Кнопки навигации */
+.nav-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    padding: 12px 15px;
+    border-radius: 8px;
+    text-align: left;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.nav-btn:hover, .nav-btn.active {
+    background-color: var(--card-bg);
+    color: var(--primary);
 }
 
-/* Общие стили для кнопок */
+/* Общие стили кнопок */
 .btn {
     padding: 10px 20px;
     border: none;
     border-radius: 6px;
-    cursor: pointer;
     font-weight: 600;
-    font-size: 14px;
-    color: #ffffff;
-    text-align: center;
+    cursor: pointer;
 }
-
-.btn-primary { background-color: var(--primary); }
-.btn-primary:hover { opacity: 0.9; }
-.btn-success { background-color: var(--success); }
-.btn-success:hover { opacity: 0.9; }
-.btn-danger { background-color: var(--danger); }
-.btn-danger:hover { opacity: 0.9; }
+.btn-primary { background-color: var(--primary); color: white; }
+.btn-success { background-color: var(--success); color: white; }
+.btn-danger { background-color: var(--danger); color: white; }
+.btn-dark { background-color: var(--dark); color: white; }
 .btn-secondary { background-color: var(--btn-secondary); color: var(--text-color); }
-.btn-secondary:hover { opacity: 0.9; }
-.btn-dark { background-color: var(--dark); }
-.btn-bonus { background-color: #eccc68; color: #2f3542; }
+.btn-bonus { background: linear-gradient(135deg, #ffa502, #ff7f50); color: white; }
 
-/* Общие инпуты */
-input[type="number"], select {
+/* Секции игр */
+.game-section { display: none; }
+.game-section.active { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Сетка макета игр */
+.game-wrapper { display: flex; gap: 30px; background-color: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); }
+.flex-column { flex-direction: column; }
+.controls-panel { width: 320px; display: flex; flex-direction: column; gap: 15px; }
+.board-panel { flex: 1; display: flex; justify-content: center; align-items: center; background-color: var(--bg-color); border-radius: 8px; padding: 20px; min-height: 340px; }
+
+/* Поля ввода */
+input[type="number"] {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
     padding: 10px;
     border-radius: 6px;
-    border: 1px solid var(--border-color);
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    font-size: 15px;
     font-weight: 600;
-    outline: none;
     width: 100%;
 }
 
 /* Модальные окна */
-.modal {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.75);
-    display: flex; justify-content: center; align-items: center;
-    opacity: 0; pointer-events: none; z-index: 10000;
-    transition: opacity 0.3s ease;
-}
-
-.modal.active {
-    opacity: 1 !important;
-    pointer-events: auto !important;
-}
-
-.modal-content {
-    background-color: var(--card-bg);
-    padding: 30px;
-    border-radius: 12px;
-    max-width: 500px;
-    width: 90%;
-    border: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
+.modal.active { display: flex; }
+.modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 12px; max-width: 500px; width: 90%; border: 1px solid var(--border-color); }
 
 /* Уведомления */
-#notification-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    z-index: 9999;
-}
-.toast {
-    min-width: 280px;
-    padding: 15px 20px;
-    border-radius: 8px;
-    color: #ffffff;
-    font-weight: 600;
-    font-size: 14px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    transform: translateX(120%);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    border-left: 6px solid rgba(0, 0, 0, 0.2);
-}
+#notification-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 9999; }
+.toast { min-width: 280px; padding: 15px 20px; border-radius: 8px; color: #ffffff; font-weight: 600; font-size: 14px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border-left: 6px solid rgba(0, 0, 0, 0.2); }
 .toast.show { transform: translateX(0); }
 .toast-success { background-color: #2ed573; }
 .toast-danger { background-color: #ff4757; }
 .toast-info { background-color: #5352ed; }
 
-/* Сетка макета режимов */
-.game-wrapper {
-    display: flex;
-    gap: 30px;
-    background-color: var(--card-bg);
-    padding: 25px;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    min-height: 400px;
-}
-.flex-column { flex-direction: column; min-height: auto; gap: 15px; }
+/* ==========================================
+   ИГРА 1: МИНЫ (MINES)
+   ========================================== */
+.mines-grid { display: grid; grid-template-columns: repeat(5, 55px); gap: 8px; }
+.mine-cell { width: 55px; height: 55px; background-color: var(--card-bg); border: 2px solid var(--border-color); border-radius: 6px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; }
+.mine-cell.revealed-gem { background-color: rgba(46, 213, 115, 0.2); border-color: #2ed573; }
+.mine-cell.revealed-mine { background-color: rgba(255, 71, 87, 0.2); border-color: #ff4757; }
 
-.controls-panel {
-    width: 320px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-.input-box {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-.input-box label {
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    opacity: 0.8;
-}
+/* ==========================================
+   ИГРА 2: КРАШ (CRASH)
+   ========================================== */
+.crash-display { width: 100%; height: 260px; position: relative; border: 2px dashed var(--border-color); border-radius: 8px; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+.crash-multiplier { font-size: 56px; font-weight: 800; z-index: 10; color: var(--text-color); }
+.crash-multiplier.crashed { color: var(--danger); }
+.crash-graph { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; }
 
-.board-panel {
-    flex: 1;
-    background-color: var(--bg-color);
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    padding: 20px;
-}
+/* ==========================================
+   ИГРА 3: ДАЙС (DICE)
+   ========================================== */
+.dice-container { display: flex; gap: 20px; }
+.dice-cube { width: 80px; height: 80px; background-color: white; color: #2f3542; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 36px; font-weight: bold; box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
 
-.game-status {
-    margin-top: 15px;
-    font-size: 15px;
-    font-weight: 500;
-    opacity: 0.9;
-}
-.text-center { text-align: center; }
-
-/* МИНЫ */
-.mines-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 65px);
-    grid-template-rows: repeat(5, 65px);
-    gap: 10px;
-}
-.mine-cell {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2);
-}
-.mine-cell:hover { background-color: var(--sidebar-bg); }
-.mine-cell.safe { background-color: rgba(46, 213, 115, 0.2); border-color: #2ed573; box-shadow: none; }
-.mine-cell.exploded { background-color: rgba(255, 71, 87, 0.2); border-color: #ff4757; box-shadow: none; }
-
-/* КРАШ */
-.crash-graph {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-#crash-multiplier {
-    font-size: 64px;
-    font-weight: 800;
-    font-family: monospace;
-}
-
-/* ДАЙС */
-.dice-stats-row {
-    display: flex;
-    width: 100%;
-    justify-content: space-around;
-    background-color: var(--card-bg);
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    border: 1px solid var(--border-color);
-}
-.stat-block { text-align: center; }
-.stat-label { font-size: 12px; opacity: 0.7; margin-bottom: 5px; }
-.stat-val { font-size: 18px; font-weight: bold; }
-.dice-action-buttons {
-    display: flex;
-    width: 100%;
-    gap: 15px;
-}
-.dice-action-buttons button { flex: 1; }
-
-/* МОНЕТКА */
+/* ==========================================
+   ИГРА 4: МОНЕТКА (COINFLIP) - КРУПНАЯ МОНЕТКА
+   ========================================== */
 .coin-container {
     perspective: 1000px;
-    width: 150px;
-    height: 150px;
-    margin-bottom: 20px;
+    margin: 40px auto;
+    width: 160px;   /* Большая монетка */
+    height: 160px;  /* Раза в 2 меньше колеса фортуны */
 }
-#coin {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    transform-style: preserve-3d;
-}
-.coin-face {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 48px;
-    font-weight: bold;
-    border: 6px solid #ffa502;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-}
-.heads-face { background: radial-gradient(circle, #ffeaa7, #ffa502); color: #d35400; }
-.tails-face { background: radial-gradient(circle, #f1f2f6, #ced6e0); color: #2f3542; transform: rotateY(180deg); }
+#coin { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
+.coin-side { position: absolute; width: 100%; height: 100%; border-radius: 50%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; font-size: 64px; font-weight: bold; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(255,255,255,0.2); border: 5px solid #ffa502; }
+.coin-heads { background: linear-gradient(135deg, #ffeaa7, #ffa502); color: #d35400; }
+.coin-tails { background: linear-gradient(135deg, #f1f2f6, #ced6e0); color: #2f3542; transform: rotateY(180deg); }
+.spin-heads { animation: flipHeads 1.2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards; }
+.spin-tails { animation: flipTails 1.2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards; }
+@keyframes flipHeads { from { transform: rotateY(0); } to { transform: rotateY(1800deg); } }
+@keyframes flipTails { from { transform: rotateY(0); } to { transform: rotateY(1980deg); } }
 
-/* КОЛЕСО */
-.wheel-wrapper {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-#wheel-canvas {
-    max-width: 320px;
-    width: 100%;
-    border-radius: 50%;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-}
-.wheel-pointer {
-    position: absolute;
-    top: -5px;
-    font-size: 28px;
-    z-index: 10;
-    color: #fff;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-}
+/* ==========================================
+   ИГРА 5: КОЛЕСО ФОРТУНЫ (WHEEL)
+   ========================================== */
+.wheel-container { position: relative; width: 320px; height: 320px; }
+#wheel-canvas { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 8px 20px rgba(0,0,0,0.3); border: 6px solid var(--border-color); }
+.wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid var(--danger); z-index: 20; }
 
-/* РУЛЕТКА */
-.roulette-wheel-container {
-    width: 100%;
-    height: 90px;
-    background-color: #141418;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 25px;
-}
-.roulette-tape {
-    display: flex;
-    position: absolute;
-    left: 0;
-    top: 5px;
-    height: 75px;
-}
-.roulette-cell {
-    width: 80px;
-    height: 75px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 20px;
-    font-weight: bold;
-    color: #fff;
-    border-right: 1px solid rgba(0,0,0,0.3);
-}
+/* ==========================================
+   ИГРА 6: РУЛЕТКА (ROULETTE)
+   ========================================== */
+.roulette-carousel { width: 100%; max-width: 500px; height: 80px; border: 3px solid var(--border-color); border-radius: 8px; position: relative; overflow: hidden; background-color: #141418; }
+.roulette-tape { display: flex; position: absolute; left: 0; top: 0; height: 100%; transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1); }
+.roulette-cell { width: 70px; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; color: white; border-right: 1px solid rgba(255,255,255,0.1); }
 .cell-red { background-color: #ff4757; }
 .cell-black { background-color: #2f3542; }
 .cell-green { background-color: #2ed573; }
+.roulette-marker { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background-color: #ffa502; z-index: 5; box-shadow: 0 0 10px #ffa502; }
 
-.roulette-marker {
-    position: absolute;
-    left: 50%;
-    top: 0;
-    transform: translateX(-50%);
-    width: 4px;
-    height: 100%;
-    background-color: #ffa502;
-    z-index: 5;
-    box-shadow: 0 0 10px #ffa502;
-}
-.bet-buttons {
-    display: flex;
-    width: 100%;
-    gap: 10px;
-}
-.bet-buttons button { flex: 1; }
-
-/* СЛОТЫ */
-.slots-machine {
-    display: flex;
-    gap: 15px;
-    background-color: #141418;
-    padding: 20px;
-    border-radius: 12px;
-    border: 3px solid var(--border-color);
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
-    margin-bottom: 20px;
-}
-.slot-reel {
-    width: 85px;
-    height: 100px;
-    background-color: #fff;
-    border-radius: 6px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 45px;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-}
-.slots-controls {
-    display: flex;
-    width: 100%;
-    max-width: 300px;
-    gap: 10px;
-}
+/* ==========================================
+   ИГРА 7: СЛОТЫ (SLOTS)
+   ========================================== */
+.slots-machine { display: flex; gap: 15px; background-color: #141418; padding: 20px; border-radius: 10px; border: 3px solid var(--border-color); margin-bottom: 20px; }
+.slot-reel { width: 75px; height: 90px; background: linear-gradient(to bottom, #2a2a35, #1e1e24); border: 2px solid var(--border-color); border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 45px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+.slots-controls { display: flex; width: 100%; max-width: 300px; gap: 10px; }
 .slots-controls input { flex: 1; }
 
 /* АДАПТИВНОСТЬ ДЛЯ ТЕЛЕФОНОВ */
@@ -473,15 +246,13 @@ input[type="number"], select {
     .sidebar {
         width: 100%; flex-direction: row; overflow-x: auto;
         padding: 8px; position: sticky; top: 0; z-index: 99; gap: 8px;
-        border-right: none; border-bottom: 1px solid var(--border-color);
+        border-left: none; border-bottom: 1px solid var(--border-color);
     }
     .nav-btn { flex: 1; text-align: center; padding: 10px 5px; font-size: 13px; white-space: nowrap; justify-content: center; }
     .game-area { padding: 12px; }
     .game-wrapper { flex-direction: column !important; padding: 15px; gap: 20px; min-height: auto; }
     .controls-panel { width: 100%; }
     .board-panel { width: 100%; padding: 25px 5px; }
-
-    .mines-grid { grid-template-columns: repeat(5, 1fr); gap: 6px; }
-    .mine-cell { height: 55px; font-size: 20px; }
-    .slot-reel { width: 70px; height: 85px; font-size: 36px; }
+    .mines-grid { grid-template-columns: repeat(5, 48px); gap: 6px; }
+    .mine-cell { width: 48px; height: 48px; font-size: 16px; }
 }
