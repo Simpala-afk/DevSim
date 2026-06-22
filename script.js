@@ -95,7 +95,6 @@ function updateThemeButtonUI() {
 
 function openDonateModal() { document.getElementById('donate-modal').classList.add('active'); }
 function closeDonateModal() { document.getElementById('donate-modal').classList.remove('active'); }
-function closeDisclaimer() { document.getElementById('disclaimer-modal').classList.remove('active'); }
 
 // ==========================================
 // ОБНОВЛЕННЫЙ ТАЙМЕР БОНУСА (Блокировка на 1 ЧАС)
