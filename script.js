@@ -1,39 +1,150 @@
-// ПЖ Зарегай
 // ==========================================
 // ГЛОБАЛЬНОЕ СОСТОЯНИЕ И СИСТЕМА ИНИЦИАЛИЗАЦИИ
 // ==========================================
-let balance = 0;
+let balance = 200;
+let currentTheme = 'dark';
+
+let minesGameState = { active: false, isGameOver: true, bet: 0, minesCount: 3, board: Array(25).fill(false), revealedCount: 0, currentMultiplier: 1.0 };
+let crashInterval;
+let crashState = { running: false, isStage: 'bet', bet: 0, currentMultiplier: 1.00, crashPoint: 0, hasBailed: false };
+let isCoinSpinning = false;
+let isWheelFortuneSpinning = false;
+let isRouletteSpinning = false;
+let isRouletteGameOver = false;
 
 window.onload = function() {
-    // 1. Создаем контейнер для уведомлений, если его нет
+    // Создаем контейнер для уведомлений
     if (!document.getElementById('notification-container')) {
         let container = document.createElement('div');
         container.id = 'notification-container';
         document.body.appendChild(container);
     }
 
-    // 2. Проверяем первый вход игрока
+    // Загрузка баланса
     if (!localStorage.getItem('has_visited')) {
         localStorage.setItem('has_visited', 'true');
-        balance = 200; // Стартовый баланс новичка
+        balance = 200;
         saveBalance();
     } else {
-        balance = parseFloat(localStorage.getItem('user_balance')) || 0;
+        balance = parseFloat(localStorage.getItem('user_balance')) || 200;
     }
     
-    // 3. Запускаем таймеры обновлений
+    // Загрузка темы
+    if (localStorage.getItem('theme')) {
+        currentTheme = localStorage.getItem('theme');
+        document.body.className = currentTheme + '-theme';
+    }
+
+    // Запуск таймеров
     setInterval(updateDonateButtonsTimers, 1000);
     setInterval(updateBonusTimer, 1000); 
 
-    // 4. Обновляем интерфейс
+    // Обновление интерфейса
     updateBalanceUI();
-    if (typeof updateBonusTimer === "function") updateBonusTimer();
+    updateBonusTimer();
     
-    // 5. Инициализируем графику режимов
     if (typeof generateRouletteTape === "function") generateRouletteTape(); 
     if (typeof updateDiceValues === "function") updateDiceValues(); 
     if (typeof drawWheelGraphics === "function") drawWheelGraphics(); 
 };
+
+// ==========================================
+// СИСТЕМНЫЕ ФУНКЦИИ И ИНТЕРФЕЙС
+// ==========================================
+function saveBalance() {
+    localStorage.setItem('user_balance', balance.toFixed(2));
+    updateBalanceUI();
+}
+
+function updateBalanceUI() {
+    const displays = document.querySelectorAll('.balance-amount');
+    displays.forEach(el => {
+        el.innerText = balance.toFixed(2);
+    });
+}
+
+function showNotification(message, type = 'info') {
+    const container = document.getElementById('notification-container');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerText = message;
+    container.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Функции управления окнами и темами
+function closeDisclaimer() {
+    const modal = document.getElementById('disclaimer-modal');
+    if (modal) {
+        modal.classList.remove('active');
+        showNotification("Добро пожаловать в симулятор!", "success");
+    }
+}
+
+function toggleTheme() {
+    if (document.body.classList.contains('dark-theme')) {
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+        currentTheme = 'light';
+    } else {
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
+        currentTheme = 'dark';
+    }
+    localStorage.setItem('theme', currentTheme);
+}
+
+function switchTab(tabId) {
+    const sections = document.querySelectorAll('.game-section');
+    sections.forEach(sec => sec.classList.remove('active'));
+    
+    const targetSection = document.getElementById(`game-${tabId}`);
+    if (targetSection) targetSection.classList.add('active');
+
+    const navButtons = document.querySelectorAll('.nav-btn');
+    navButtons.forEach(btn => btn.classList.remove('active'));
+    
+    const activeBtn = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
+    if (activeBtn) activeBtn.classList.add('active');
+}
+
+function updateBonusTimer() {
+    const bonusBtn = document.getElementById('claim-bonus-btn');
+    if (!bonusBtn) return;
+    const nextBonus = localStorage.getItem('next_bonus_time');
+    const now = Date.now();
+
+    if (!nextBonus || now >= parseInt(nextBonus)) {
+        bonusBtn.disabled = false;
+        bonusBtn.innerText = "Получить бонус";
+    } else {
+        bonusBtn.disabled = true;
+        const diff = parseInt(nextBonus) - now;
+        const mins = Math.floor(diff / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+        bonusBtn.innerText = `Бонус через ${mins}м ${secs}с`;
+    }
+}
+
+function claimBonus() {
+    const nextBonus = localStorage.getItem('next_bonus_time');
+    const now = Date.now();
+    if (nextBonus && now < parseInt(nextBonus)) return;
+
+    const bonusAmount = Math.floor(Math.random() * (50 - 10 + 1)) + 10;
+    balance += bonusAmount;
+    saveBalance();
+    
+    localStorage.setItem('next_bonus_time', now + 300000); // 5 минут кд
+    showNotification(`Получен ежедневный бонус +${bonusAmount} ₽!`, "success");
+    updateBonusTimer();
+}
+
 // ==========================================
 // РЕЖИМ 1: МИНЫ (MINES)
 // ==========================================
@@ -164,16 +275,6 @@ function endMinesGame(isWin) {
 // ==========================================
 // РЕЖИМ 2: КРАШ (CRASH)
 // ==========================================
-let crashInterval;
-let crashState = {
-    running: false,
-    isStage: 'bet', 
-    bet: 0,
-    currentMultiplier: 1.00,
-    crashPoint: 0,
-    hasBailed: false
-};
-
 function handleCrashAction() {
     const btn = document.getElementById('crash-btn');
     const betInput = document.getElementById('crash-bet');
@@ -255,14 +356,7 @@ function triggerCrashExplosion() {
 
 function forceResetCrash() {
     clearInterval(crashInterval);
-    crashState = {
-        running: false,
-        isStage: 'bet',
-        bet: 0,
-        currentMultiplier: 1.00,
-        crashPoint: 0,
-        hasBailed: false
-    };
+    crashState = { running: false, isStage: 'bet', bet: 0, currentMultiplier: 1.00, crashPoint: 0, hasBailed: false };
     const btn = document.getElementById('crash-btn');
     btn.innerText = "Ставка";
     btn.className = "btn btn-primary";
@@ -278,7 +372,9 @@ function forceResetCrash() {
 // РЕЖИМ 3: ДАЙС (DICE)
 // ==========================================
 function updateDiceValues() {
-    const chance = parseFloat(document.getElementById('dice-chance').value);
+    const chanceInput = document.getElementById('dice-chance');
+    if(!chanceInput) return;
+    const chance = parseFloat(chanceInput.value);
     document.getElementById('dice-chance-val').innerText = chance;
 
     const multiplier = parseFloat((95 / chance).toFixed(2));
@@ -325,7 +421,6 @@ function playDice(direction) {
 // ==========================================
 // РЕЖИМ 4: МОНЕТКА (COINFLIP)
 // ==========================================
-let isCoinSpinning = false;
 function playCoinflip(chosenSide) {
     if (isCoinSpinning) return;
     const betInput = document.getElementById('coinflip-bet');
@@ -366,7 +461,6 @@ function playCoinflip(chosenSide) {
 // ==========================================
 // РЕЖИМ 5: КОЛЕСО ФОРТУНЫ (WHEEL)
 // ==========================================
-let isWheelFortuneSpinning = false;
 const wheelSectors = {
     low: [
         {txt: 'x1.2', val: 1.2, col: '#2ed573'}, {txt: 'x1.5', val: 1.5, col: '#1e90ff'},
@@ -398,10 +492,8 @@ function drawWheelGraphics() {
     const size = canvas.offsetWidth || 300;
     canvas.width = size;
     canvas.height = size;
-
     const center = size / 2;
     const radius = center - 10;
-
     const numSectors = sectors.length;
     const arc = Math.PI * 2 / numSectors;
     ctx.clearRect(0, 0, size, size);
@@ -432,13 +524,6 @@ function drawWheelGraphics() {
     ctx.beginPath();
     ctx.arc(center, center, size / 12, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = varColor('--primary', '#5352ed');
-    ctx.lineWidth = 3;
-    ctx.stroke();
-}
-
-function varColor(varName, fallback) {
-    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || fallback;
 }
 
 function spinWheelFortune() {
@@ -458,12 +543,10 @@ function spinWheelFortune() {
 
     const numSectors = sectors.length;
     const arc = 360 / numSectors;
-    
     const targetSectorIndex = Math.floor(Math.random() * numSectors);
     const targetSector = sectors[targetSectorIndex];
     let targetAngle = 270 - (targetSectorIndex * arc + arc / 2);
-    let fullTurns = 5 * 360; 
-    let finalRotation = fullTurns + targetAngle;
+    let finalRotation = (5 * 360) + targetAngle;
 
     const canvas = document.getElementById('wheel-canvas');
     canvas.style.transition = "transform 4s cubic-bezier(0.1, 0.8, 0.1, 1)";
@@ -486,7 +569,6 @@ function spinWheelFortune() {
             canvas.style.transform = `rotate(${normAngle}deg)`;
             isWheelFortuneSpinning = false;
         }, 400);
-
     }, 4100);
 }
 
@@ -494,8 +576,6 @@ function spinWheelFortune() {
 // РЕЖИМ 6: РУЛЕТКА (ROULETTE)
 // ==========================================
 const rouletteOrder = ['green', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red'];
-let isRouletteSpinning = false;
-let isRouletteGameOver = false; 
 
 function generateRouletteTape() {
     const tape = document.getElementById('roulette-tape');
@@ -559,7 +639,6 @@ function placeRouletteBet(chosenColor) {
 function resetRouletteTable() {
     isRouletteGameOver = false;
     isRouletteSpinning = false;
-    
     document.getElementById('roulette-bet').disabled = false;
     document.getElementById('roulette-status').innerText = "Выберите сумму и нажмите на цвет";
     
@@ -585,7 +664,6 @@ function spinSlots() {
 
     balance -= bet;
     saveBalance();
-
     document.getElementById('slots-status').innerText = "Слоты крутятся...";
     
     let intervals = [];
@@ -616,11 +694,9 @@ function checkSlotsResult(bet) {
         let multiplier = 5;
         if (r1 === '💎') multiplier = 10;
         if (r1 === '7️⃣') multiplier = 25;
-
         const winAmount = bet * multiplier;
         balance += winAmount;
         saveBalance();
-
         status.innerText = `🎉 ДЖЕКПОТ! 3 в ряд [${r1}]. Вы выиграли ${winAmount.toFixed(2)} ₽ (x${multiplier})!`;
         showNotification(`Слоты: Выигрыш ${winAmount.toFixed(2)} ₽!`, "success");
     } else if (r1 === r2 || r2 === r3 || r1 === r3) {
@@ -656,7 +732,6 @@ function triggerDonate(amount) {
 
     balance += amount;
     saveBalance();
-
     localStorage.setItem(`next_donate_${amount}`, now + cooldown);
     showNotification(`Баланс виртуально пополнен на +${amount} ₽!`, "success");
     updateDonateButtonsTimers();
@@ -665,11 +740,9 @@ function triggerDonate(amount) {
 function updateDonateButtonsTimers() {
     const now = Date.now();
     const amounts = [10, 100, 500, 1000];
-
     amounts.forEach(amount => {
         const btn = document.getElementById(`donate-${amount}`);
         if (!btn) return;
-
         const nextTime = localStorage.getItem(`next_donate_${amount}`);
 
         if (!nextTime || now >= parseInt(nextTime)) {
@@ -681,7 +754,6 @@ function updateDonateButtonsTimers() {
         } else {
             btn.disabled = true;
             const diff = parseInt(nextTime) - now;
-
             if (diff > 60000) {
                 const mins = Math.floor(diff / 60000);
                 const secs = Math.floor((diff % 60000) / 1000);
