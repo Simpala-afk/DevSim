@@ -178,3 +178,22 @@ function openContainer(type) {
 
     }, 1200);
 }
+function showContent(type) {
+    const container = containersData[type];
+    const modal = document.getElementById('content-modal');
+    const list = document.getElementById('modal-list');
+    const title = document.getElementById('modal-title');
+
+    title.innerText = `Состав: ${container.title}`;
+    list.innerHTML = '';
+
+    container.items.forEach(item => {
+        const li = document.createElement('li');
+        li.style.padding = "8px 0";
+        li.style.borderBottom = "1px solid var(--border-color)";
+        li.innerHTML = `<strong>${item.name}</strong> — <span style="color:var(--success)">${item.price.toLocaleString()} ₽</span>`;
+        list.appendChild(li);
+    });
+
+    modal.style.display = 'flex';
+}
