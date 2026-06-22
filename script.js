@@ -149,7 +149,9 @@ function claimBonus() {
 function triggerDonate(amount) {
     const now = Date.now();
     const nextTime = localStorage.getItem(`next_donate_${amount}`);
-    if (nextTime && now < parseInt(nextTime)) return;
+    
+    // Модифицируем проверку: если это 1000 рублей, то пропускаем проверку кулдауна
+    if (amount !== 1000 && nextTime && now < parseInt(nextTime)) return;
 
     let cooldown = 10000;
     if (amount === 100) cooldown = 60000;
@@ -159,7 +161,11 @@ function triggerDonate(amount) {
     balance += amount;
     saveBalance();
 
-    localStorage.setItem(`next_donate_${amount}`, now + cooldown);
+    // Записываем кулдаун в память только если это НЕ 1000 рублей
+    if (amount !== 1000) {
+        localStorage.setItem(`next_donate_${amount}`, now + cooldown);
+    }
+    
     showNotification(`Баланс виртуально пополнен на +${amount} ₽!`, "success");
     updateDonateButtonsTimers();
 }
@@ -174,19 +180,20 @@ function updateDonateButtonsTimers() {
 
         const nextTime = localStorage.getItem(`next_donate_${amount}`);
 
-        if (!nextTime || now >= parseInt(nextTime)) {
+        // Модифицируем условие: если это 1000 рублей, она ВСЕГДА активна
+        if (amount === 1000 || !nextTime || now >= parseInt(nextTime)) {
             btn.disabled = false;
-            btn.style.opacity = "1"; // Обычное состояние кнопок
+            btn.style.opacity = "1"; 
             btn.style.cursor = "pointer";
             
             if (amount === 10) btn.innerText = "+10 ₽ (Раз в 10 сек)";
             if (amount === 100) btn.innerText = "+100 ₽ (Раз в 1 мин)";
             if (amount === 500) btn.innerText = "+500 ₽ (Раз в 1 час)";
-            if (amount === 1000) btn.innerText = "+1000 ₽ (Раз в 2 часа)";
+            if (amount === 1000) btn.innerText = "+1000 ₽ (Без КД)"; // Меняем текст для удобства
         } else {
             btn.disabled = true;
-            btn.style.opacity = "0.4"; // Делаем серыми на КД
-            btn.style.cursor = "not-allowed"; // Запрещающий курсор
+            btn.style.opacity = "0.4"; 
+            btn.style.cursor = "not-allowed"; 
             
             const diff = parseInt(nextTime) - now;
             if (diff > 60000) {
