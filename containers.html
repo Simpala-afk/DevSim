@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контейнеры — Симулятор Игр</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Дополнительные стили специально для режима контейнеров */
+        .containers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .container-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .container-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .container-img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background-color: rgba(0,0,0,0.1);
+        }
+        .container-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .container-price {
+            font-size: 18px;
+            color: var(--success);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        /* Стили для зоны анимации дропа */
+        .drop-zone {
+            width: 100%;
+            background-color: var(--card-bg);
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .win-card {
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .win-car-img {
+            max-width: 320px;
+            width: 100%;
+            height: 180px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .win-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .win-cost {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .profit { color: var(--success); }
+        .loss { color: var(--danger); }
+
+        @keyframes popIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="dark-theme" id="app-body">
+
+    <header class="app-header">
+        <div class="header-logo">
+            <span style="font-size: 24px;">📦</span> 
+            <h1>Порт Контейнеров</h1>
+        </div>
+        <div class="header-controls">
+            <a href="index.html" class="btn btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                🏠 На главную
+            </a>
+            <button onclick="toggleTheme()" class="btn btn-secondary" id="theme-btn">🌙 Тема</button>
+            <div class="balance-display">Баланс: <span id="user-balance">200</span> ₽</div>
+        </div>
+    </header>
+
+    <main class="game-area" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+        
+        <div class="drop-zone" id="drop-container">
+            <div style="font-size: 50px; opacity: 0.3;">⚓</div>
+            <p style="opacity: 0.6; margin-top: 10px; font-size: 16px;" id="drop-status">Купите контейнер, чтобы разгрузить его и забрать автомобиль</p>
+        </div>
+
+        <div class="containers-grid">
+            
+            <div class="container-card">
+                <div>
+                    <img src="images/germany.png" alt="Германия" class="container-img" onerror="this.src='https://placehold.co/400x250/2a2a35/ffffff?text=Германия'">
+                    <div class="container-title">🇩🇪 Германия</div>
+                    <div class="container-price">10 000 ₽</div>
+                </div>
+                <button onclick="openContainer('germany')" class="btn btn-primary" style="width: 100%;">Открыть</button>
+            </div>
+
+            <div class="container-card">
+                <div>
+                    <img src="images/dubai.png" alt="Дубай" class="container-img" onerror="this.src='https://placehold.co/400x250/2a2a35/ffffff?text=Дубай'">
+                    <div class="container-title">🇦🇪 Дубай</div>
+                    <div class="container-price">20 000 ₽</div>
+                </div>
+                <button onclick="openContainer('dubai')" class="btn btn-primary" style="width: 100%;">Открыть</button>
+            </div>
+
+            <div class="container-card">
+                <div>
+                    <img src="images/italy.png" alt="Италия" class="container-img" onerror="this.src='https://placehold.co/400x250/2a2a35/ffffff?text=Италия'">
+                    <div class="container-title">🇮🇹 Италия</div>
+                    <div class="container-price">50 000 ₽</div>
+                </div>
+                <button onclick="openContainer('italy')" class="btn btn-primary" style="width: 100%;">Открыть</button>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="containers.js"></script>
+</body>
+</html>
