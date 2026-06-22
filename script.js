@@ -5,14 +5,13 @@ let balance = 0;
 
 window.onload = function() {
     setInterval(updateDonateButtonsTimers, 1000);
-    // Создаем контейнер для кастомных уведомлений, если его нет
+    
     if (!document.getElementById('notification-container')) {
         let container = document.createElement('div');
         container.id = 'notification-container';
         document.body.appendChild(container);
     }
 
-    // Проверка первого захода
     if (!localStorage.getItem('has_visited')) {
         localStorage.setItem('has_visited', 'true');
         balance = 200;
@@ -20,13 +19,15 @@ window.onload = function() {
     } else {
         balance = parseFloat(localStorage.getItem('user_balance')) || 0;
     }
+    
     updateBalanceUI();
     updateBonusTimer();
     setInterval(updateBonusTimer, 1000); 
     generateRouletteTape(); 
+    updateDiceValues(); 
+    drawWheelGraphics(); 
 };
 
-// Кастомное стильное уведомление взамен alert()
 function showNotification(message, type = 'info') {
     const container = document.getElementById('notification-container');
     const toast = document.createElement('div');
@@ -35,7 +36,6 @@ function showNotification(message, type = 'info') {
     
     container.appendChild(toast);
     
-    // Плавное появление и исчезновение
     setTimeout(() => toast.classList.add('show'), 10);
     setTimeout(() => {
         toast.classList.remove('show');
@@ -72,20 +72,25 @@ function switchTab(game, buttonElement) {
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
     buttonElement.classList.add('active');
     document.querySelectorAll('.game-section').forEach(sec => sec.classList.remove('active'));
-    document.getElementById(`game-${game}`).classList.add('active');
+    
+    const targetSection = document.getElementById(`game-${game}`);
+    targetSection.classList.add('active');
+    
+    // Если открыли Колесо, перерисовываем холст, чтобы не пропал
+    if (game === 'wheel') {
+        drawWheelGraphics();
+    }
 }
 
-// Система ежечасного бонуса
 function claimBonus() {
     const nextBonusTime = localStorage.getItem('next_bonus_time');
     const now = Date.now();
     if (!nextBonusTime || now >= nextBonusTime) {
         balance += 50;
         saveBalance();
-        const oneHourLater = now + 3600000; 
-        localStorage.setItem('next_bonus_time', oneHourLater);
+        localStorage.setItem('next_bonus_time', now + 3600000);
         updateBonusTimer();
-        showNotification("Вы получили ежечасный бонус 50 рублей!", "success");
+        showNotification("Вы получили бонус 50 рублей!", "success");
     }
 }
 
@@ -137,8 +142,8 @@ function startMinesGame() {
     const bet = parseFloat(betInput.value);
     const count = parseInt(countInput.value);
 
-    if (isNaN(bet) || bet <= 0 || bet > balance) { showNotification("Неверная ставка или недостаточно средств!", "danger"); return; }
-    if (isNaN(count) || count < 1 || count > 24) { showNotification("Количество мин должно быть от 1 до 24!", "danger"); return; }
+    if (isNaN(bet) || bet <= 0 || bet > balance) { showNotification("Неверная ставка или мало средств!", "danger"); return; }
+    if (isNaN(count) || count < 1 || count > 24) { showNotification("Мин должно быть от 1 до 24!", "danger"); return; }
 
     balance -= bet;
     saveBalance();
@@ -203,7 +208,6 @@ function clickMineCell(index) {
     }
 }
 
-// Система ежечасного бонуса и обновления интерфейса мин
 function updateMinesUI() {
     const status = document.getElementById('mines-status');
     const cashoutBtn = document.getElementById('mines-cashout-btn');
@@ -366,7 +370,235 @@ function forceResetCrash() {
 }
 
 // ==========================================
-// РЕЖИМ 3: РУЛЕТКА (ROULETTE)
+// РЕЖИМ 3: ДАЙС (DICE)
+// ==========================================
+function updateDiceValues() {
+    const chance = parseFloat(document.getElementById('dice-chance').value);
+    document.getElementById('dice-chance-val').innerText = chance;
+
+    // Вычисление чистого множителя кабуры: 95 / шанс
+    const multiplier = parseFloat((95 / chance).toFixed(2));
+    document.getElementById('dice-multiplier').innerText = `x${multiplier}`;
+
+    const bet = parseFloat(document.getElementById('dice-bet').value) || 0;
+    document.getElementById('dice-payout').innerText = (bet * multiplier).toFixed(2);
+
+    // Границы чисел
+    document.getElementById('dice-less-range').innerText = chance.toFixed(2);
+    document.getElementById('dice-more-range').innerText = (99.99 - chance).toFixed(2);
+}
+
+function playDice(direction) {
+    const betInput = document.getElementById('dice-bet');
+    const bet = parseFloat(betInput.value);
+    const chance = parseFloat(document.getElementById('dice-chance').value);
+
+    if (isNaN(bet) || bet <= 0 || bet > balance) { showNotification("Неверная ставка!", "danger"); return; }
+
+    balance -= bet;
+    saveBalance();
+
+    const resultRoll = parseFloat((Math.random() * 100).toFixed(2));
+    document.getElementById('dice-roll-result').innerText = resultRoll.toFixed(2);
+
+    const multiplier = 95 / chance;
+    let isWin = false;
+
+    if (direction === 'less' && resultRoll <= chance) {
+        isWin = true;
+    } else if (direction === 'more' && resultRoll >= (99.99 - chance)) {
+        isWin = true;
+    }
+
+    if (isWin) {
+        const winAmount = bet * multiplier;
+        balance += winAmount;
+        saveBalance();
+        document.getElementById('dice-status').innerText = `🎉 Победа! Выпало число ${resultRoll}. Получено +${winAmount.toFixed(2)} ₽`;
+        showNotification(`Дайс: Победа +${winAmount.toFixed(2)} ₽!`, "success");
+    } else {
+        document.getElementById('dice-status').innerText = `Проигрыш! Выпало число ${resultRoll}. Попробуйте еще раз.`;
+        showNotification("Дайс: Проигрыш.", "danger");
+    }
+    updateDiceValues();
+}
+
+// ==========================================
+// РЕЖИМ 4: МОНЕТКА (COINFLIP)
+// ==========================================
+let isCoinSpinning = false;
+
+function playCoinflip(chosenSide) {
+    if (isCoinSpinning) return;
+    const betInput = document.getElementById('coinflip-bet');
+    const bet = parseFloat(betInput.value);
+
+    if (isNaN(bet) || bet <= 0 || bet > balance) { showNotification("Неверная ставка!", "danger"); return; }
+
+    balance -= bet;
+    saveBalance();
+
+    isCoinSpinning = true;
+    document.getElementById('coinflip-status').innerText = "Монетка подброшена...";
+
+    const randSide = Math.random() < 0.5 ? 'heads' : 'tails';
+    const coin = document.getElementById('coin');
+
+    // Накручиваем полные обороты для красоты 3D
+    let extraDegrees = randSide === 'heads' ? 1440 : 1620; 
+    coin.style.transition = "transform 2s cubic-bezier(0.1, 0.8, 0.1, 1)";
+    coin.style.transform = `rotateY(${extraDegrees}deg)`;
+
+    setTimeout(() => {
+        if (chosenSide === randSide) {
+            const winAmount = bet * 2;
+            balance += winAmount;
+            saveBalance();
+            document.getElementById('coinflip-status').innerText = `🎉 Выпал ${randSide === 'heads' ? 'Орёл' : 'Решка'}. Вы угадали! +${winAmount.toFixed(2)} ₽`;
+            showNotification(`Монетка: Выиграно ${winAmount.toFixed(2)} ₽!`, "success");
+        } else {
+            document.getElementById('coinflip-status').innerText = `Увы! Выпал ${randSide === 'heads' ? 'Орёл' : 'Решка'}. Спин неудачный.`;
+            showNotification("Монетка: Проигрыш.", "danger");
+        }
+        
+        // Сброс позиции монеты без анимации
+        setTimeout(() => {
+            coin.style.transition = "none";
+            coin.style.transform = randSide === 'heads' ? "rotateY(0deg)" : "rotateY(180deg)";
+            isCoinSpinning = false;
+        }, 500);
+
+    }, 2000);
+}
+
+// ==========================================
+// РЕЖИМ 5: КОЛЕСО ФОРТУНЫ (WHEEL)
+// ==========================================
+let isWheelFortuneSpinning = false;
+const wheelSectors = {
+    low: [
+        {txt: 'x1.2', val: 1.2, col: '#2ed573'}, {txt: 'x1.5', val: 1.5, col: '#1e90ff'},
+        {txt: 'x0.0', val: 0.0, col: '#7f8c8d'}, {txt: 'x1.2', val: 1.2, col: '#2ed573'},
+        {txt: 'x2.0', val: 2.0, col: '#ffa502'}, {txt: 'x1.2', val: 1.2, col: '#2ed573'},
+        {txt: 'x0.0', val: 0.0, col: '#7f8c8d'}, {txt: 'x1.5', val: 1.5, col: '#1e90ff'}
+    ],
+    medium: [
+        {txt: 'x0.0', val: 0.0, col: '#7f8c8d'}, {txt: 'x2.0', val: 2.0, col: '#2ed573'},
+        {txt: 'x0.0', val: 0.0, col: '#7f8c8d'}, {txt: 'x3.0', val: 3.0, col: '#1e90ff'},
+        {txt: 'x0.0', val: 0.0, col: '#7f8c8d'}, {txt: 'x5.0', val: 5.0, col: '#ffa502'},
+        {txt: 'x0.0', val: 0.0, col: '#7f8c8d'}, {txt: 'x2.0', val: 2.0, col: '#2ed573'}
+    ],
+    high: [
+        {txt: 'x0.0', val: 0.0, col: '#7f8c8d'}, {txt: 'x0.0', val: 0.0, col: '#7f8c8d'},
+        {txt: 'x0.0', val: 0.0, col: '#7f8c8d'}, {txt: 'x10.', val: 10.0, col: '#1e90ff'},
+        {txt: 'x0.0', val: 0.0, col: '#7f8c8d'}, {txt: 'x0.0', val: 0.0, col: '#7f8c8d'},
+        {txt: 'x0.0', val: 0.0, col: '#7f8c8d'}, {txt: 'x50.', val: 50.0, col: '#ff4757'}
+    ]
+};
+
+function drawWheelGraphics() {
+    const canvas = document.getElementById('wheel-canvas');
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const risk = document.getElementById('wheel-risk').value;
+    const sectors = wheelSectors[risk];
+
+    const numSectors = sectors.length;
+    const arc = Math.PI * 2 / numSectors;
+    ctx.clearRect(0, 0, 300, 300);
+
+    sectors.forEach((sec, i) => {
+        let angle = i * arc;
+        ctx.fillStyle = sec.col;
+        ctx.beginPath();
+        ctx.moveTo(150, 150);
+        ctx.arc(150, 150, 140, angle, angle + arc, false);
+        ctx.lineTo(150, 150);
+        ctx.fill();
+        ctx.strokeStyle = '#2a2a35';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Рисуем текст множителей на секторах
+        ctx.save();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 14px Segoe UI';
+        ctx.translate(150, 150);
+        ctx.rotate(angle + arc / 2);
+        ctx.textAlign = 'right';
+        ctx.fillText(sec.txt, 120, 5);
+        ctx.restore();
+    });
+
+    // Центральная кнопка заглушка
+    ctx.fillStyle = '#141418';
+    ctx.beginPath();
+    ctx.arc(150, 150, 25, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = varColor('--primary', '#5352ed');
+    ctx.lineWidth = 3;
+    ctx.stroke();
+}
+
+function varColor(varName, fallback) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || fallback;
+}
+
+function spinWheelFortune() {
+    if (isWheelFortuneSpinning) return;
+    const betInput = document.getElementById('wheel-bet');
+    const bet = parseFloat(betInput.value);
+    const risk = document.getElementById('wheel-risk').value;
+    const sectors = wheelSectors[risk];
+
+    if (isNaN(bet) || bet <= 0 || bet > balance) { showNotification("Неверная ставка!", "danger"); return; }
+
+    balance -= bet;
+    saveBalance();
+
+    isWheelFortuneSpinning = true;
+    document.getElementById('wheel-status').innerText = "Барабан крутится...";
+
+    const numSectors = sectors.length;
+    const arc = 360 / numSectors;
+    
+    const targetSectorIndex = Math.floor(Math.random() * numSectors);
+    const targetSector = sectors[targetSectorIndex];
+
+    // Рассчитываем угол поворота, чтобы стрелочка сверху (угол 270 град) указала на нужный сектор
+    let targetAngle = 270 - (targetSectorIndex * arc + arc / 2);
+    let fullTurns = 5 * 360; 
+    let finalRotation = fullTurns + targetAngle;
+
+    const canvas = document.getElementById('wheel-canvas');
+    canvas.style.transition = "transform 4s cubic-bezier(0.1, 0.8, 0.1, 1)";
+    canvas.style.transform = `rotate(${finalRotation}deg)`;
+
+    setTimeout(() => {
+        const winAmount = bet * targetSector.val;
+        if(targetSector.val > 0) {
+            balance += winAmount;
+            saveBalance();
+            document.getElementById('wheel-status').innerText = `🎉 Успех! Колесо выдало ${targetSector.txt}. Приз: +${winAmount.toFixed(2)} ₽!`;
+            showNotification(`Колесо: Победа +${winAmount.toFixed(2)} ₽!`, "success");
+        } else {
+            document.getElementById('wheel-status').innerText = `Проигрыш! Выпал сектор ${targetSector.txt}. Попробуйте еще раз.`;
+            showNotification("Колесо: Сектор х0.", "danger");
+        }
+
+        // Выпрямляем колесо скрытно для новой прокрутки
+        setTimeout(() => {
+            canvas.style.transition = "none";
+            let normAngle = targetAngle < 0 ? 360 + targetAngle : targetAngle;
+            canvas.style.transform = `rotate(${normAngle}deg)`;
+            isWheelFortuneSpinning = false;
+        }, 400);
+
+    }, 4100);
+}
+
+// ==========================================
+// РЕЖИМ 6: РУЛЕТКА (ROULETTE)
 // ==========================================
 const rouletteOrder = ['green', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red'];
 let isRouletteSpinning = false;
@@ -374,6 +606,7 @@ let isRouletteGameOver = false;
 
 function generateRouletteTape() {
     const tape = document.getElementById('roulette-tape');
+    if(!tape) return;
     tape.innerHTML = '';
     for(let repeat = 0; repeat < 6; repeat++) {
         rouletteOrder.forEach((color, index) => {
@@ -387,10 +620,7 @@ function generateRouletteTape() {
 }
 
 function placeRouletteBet(chosenColor) {
-    if (isRouletteGameOver) {
-        resetRouletteTable();
-        return;
-    }
+    if (isRouletteGameOver) { resetRouletteTable(); return; }
     if(isRouletteSpinning) return;
 
     const betInput = document.getElementById('roulette-bet');
@@ -412,7 +642,7 @@ function placeRouletteBet(chosenColor) {
     tape.style.transition = "transform 4s cubic-bezier(0.1, 0.8, 0.1, 1)";
     tape.style.transform = `translateX(-${offset}px)`;
 
-    const buttonsContainer = document.querySelector('.bet-buttons');
+    const buttonsContainer = document.querySelector('#game-roulette .bet-buttons');
 
     setTimeout(() => {
         let multiplier = 0;
@@ -422,10 +652,10 @@ function placeRouletteBet(chosenColor) {
             balance += winnings;
             saveBalance();
             document.getElementById('roulette-status').innerText = `🎉 Выпал цвет: ${winningColor}. Выиграно ${winnings.toFixed(2)} ₽!`;
-            showNotification(`Победа! +${winnings.toFixed(2)} ₽`, "success");
+            showNotification(`Рулетка: Победа +${winnings.toFixed(2)} ₽`, "success");
         } else {
             document.getElementById('roulette-status').innerText = `Проигрыш. Выпал цвет: ${winningColor}.`;
-            showNotification(`Увы, выпал цвет: ${winningColor}`, "danger");
+            showNotification(`Рулетка, увы: цвет ${winningColor}`, "danger");
         }
         isRouletteSpinning = false;
         isRouletteGameOver = true; 
@@ -444,7 +674,7 @@ function resetRouletteTable() {
     tape.style.transition = "none";
     tape.style.transform = `translateX(-110px)`;
 
-    const buttonsContainer = document.querySelector('.bet-buttons');
+    const buttonsContainer = document.querySelector('#game-roulette .bet-buttons');
     buttonsContainer.innerHTML = `
         <button onclick="placeRouletteBet('red')" class="btn btn-danger">Красное (x2)</button>
         <button onclick="placeRouletteBet('green')" class="btn btn-success">Зеленое (x14)</button>
@@ -453,7 +683,7 @@ function resetRouletteTable() {
 }
 
 // ==========================================
-// РЕЖИМ 4: СЛОТЫ (SLOTS)
+// РЕЖИМ 7: СЛОТЫ (SLOTS)
 // ==========================================
 const slotSymbols = ['🍒', '🍋', '🍉', '🍇', '💎', '7️⃣'];
 
@@ -461,7 +691,7 @@ function spinSlots() {
     const betInput = document.getElementById('slots-bet');
     const bet = parseFloat(betInput.value);
 
-    if (isNaN(bet) || bet <= 0 || bet > balance) { showNotification("Неверная ставка или недостаточно средств!", "danger"); return; }
+    if (isNaN(bet) || bet <= 0 || bet > balance) { showNotification("Неверная ставка или мало средств!", "danger"); return; }
 
     balance -= bet;
     saveBalance();
@@ -469,8 +699,6 @@ function spinSlots() {
     document.getElementById('slots-status').innerText = "Слоты крутятся...";
     
     let intervals = [];
-    let counter = 0;
-
     function randomizeReel(reelId) {
         let reel = document.getElementById(reelId);
         let randIndex = Math.floor(Math.random() * slotSymbols.length);
