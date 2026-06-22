@@ -13,7 +13,7 @@
             <h2>⚠️ ВНИМАНИЕ И ДИСКЛЕЙМЕР</h2>
             <p>Данный сайт является исключительно визуальным симулятором игровых механик.</p>
             <p>Здесь <strong>нет реальных денег</strong>, пополнений баланса, азартных игр или вывода средств. Вся валюта внутриигровая (виртуальные рубли) и создана ради демонстрации работы алгоритмов. Играя здесь, вы соглашаетесь, что это просто симуляция.</p>
-            <button onclick="closeDisclaimer()" class="btn btn-success">Я всё понял и согласен</button>
+            <button onclick=\"closeDisclaimer()\" class="btn btn-success">Я всё понял и согласен</button>
         </div>
     </div>
 
@@ -22,56 +22,48 @@
             <h2>💎 Виртуальное пополнение (Донат)</h2>
             <p>Выберите сумму для мгновенного зачисления на баланс:</p>
             <div style="display: flex; flex-direction: column; gap: 12px; margin: 20px 0;">
-                <button id="donate-10" onclick="triggerDonate(10)" class="btn btn-primary" style="width: 100%;">+10 ₽ (Раз в 10 сек)</button>
-                <button id="donate-100" onclick="triggerDonate(100)" class="btn btn-success" style="width: 100%;">+100 ₽ (Раз в 1 мин)</button>
-                <button id="donate-500" onclick="triggerDonate(500)" class="btn btn-bonus" style="width: 100%; color: #000;">+500 ₽ (Раз в 1 час)</button>
-                <button id="donate-1000" onclick="triggerDonate(1000)" class="btn btn-danger" style="width: 100%;">+1000 ₽ (Раз в 2 часа)</button>
+                <button id="donate-10" onclick="triggerDonate(10)" class="btn btn-success">+10 ₽ (Раз в 10 сек)</button>
+                <button id="donate-100" onclick="triggerDonate(100)" class="btn btn-success">+100 ₽ (Раз в 1 мин)</button>
+                <button id="donate-500" onclick="triggerDonate(500)" class="btn btn-success">+500 ₽ (Раз в 1 час)</button>
+                <button id="donate-1000" onclick="triggerDonate(1000)" class="btn btn-success">+1000 ₽ (Раз в 2 часа)</button>
             </div>
             <button onclick="closeDonateModal()" class="btn btn-secondary" style="width: 100%;">Закрыть</button>
         </div>
     </div>
 
-    <header>
-    <div class="logo">🎰 DevSimulator</div>
-    <div class="header-controls">
-        <div class="balance-display" onclick="openDonateModal()" title="Нажмите для пополнения">
-            💸 Баланс: <span id="balance-val">200.00</span> ₽
+    <header class="app-header">
+        <div class="logo">🎰 DevSimulator</div>
+        <div class="header-controls">
+            <div class="balance-display" onclick="openDonateModal()" title="Нажмите для пополнения">
+                💸 Баланс: <span id="balance-val">200.00</span> ₽
+            </div>
+            <button id="bonus-btn" onclick="claimBonus()" class="btn btn-bonus">Бонус (50₽)</button>
+            <button id="theme-toggle-btn" onclick="toggleTheme()" class="btn btn-secondary">☀️ Светлая тема</button>
         </div>
-        <button id="bonus-btn" onclick="claimBonus()" class="btn btn-bonus">Бонус (50₽)</button>
-        <button id="theme-toggle-btn" onclick="toggleTheme()" class="btn btn-secondary">☀️ Светлая тема</button>
-    </div>
-</header>
+    </header>
 
     <div class="app-container">
-        <aside class="sidebar">
-            <button class="nav-btn active" onclick="switchTab('mines', this)">💣 Мины</button>
-            <button class="nav-btn" onclick="switchTab('crash', this)">📈 Краш</button>
-            <button class="nav-btn" onclick="switchTab('dice', this)">🎲 Дайс</button>
-            <button class="nav-btn" onclick="switchTab('coinflip', this)">🪙 Монетка</button>
-            <button class="nav-btn" onclick="switchTab('wheel', this)">🎡 Колесо</button>
-            <button class="nav-btn" onclick="switchTab('roulette', this)">🎡 Рулетка</button>
-            <button class="nav-btn" onclick="switchTab('slots', this)">🎰 Слоты</button>
-        </aside>
-
         <main class="game-area">
+            
             <section id="game-mines" class="game-section active">
                 <div class="game-wrapper">
                     <div class="controls-panel">
-                        <h3>💣 МИНЫ</h3>
-                        <div class="input-group">
-                            <label>Ставка (₽):</label>
+                        <h3>💣 МИНЫ (MINES)</h3>
+                        <p style="font-size: 14px; opacity: 0.8;">Выберите количество мин, укажите ставку и открывайте ячейки, избегая ловушек.</p>
+                        <div style="margin-top: 10px;">
+                            <label style="font-size: 13px; font-weight:600;">Ставка (₽):</label>
                             <input type="number" id="mines-bet" value="10" min="1">
                         </div>
-                        <div class="input-group">
-                            <label>Количество мин (1-24):</label>
+                        <div style="margin-top: 10px; margin-bottom: 15px;">
+                            <label style="font-size: 13px; font-weight:600;">Количество мин (1-24):</label>
                             <input type="number" id="mines-count" value="3" min="1" max="24">
                         </div>
-                        <button id="mines-start-btn" onclick="startMinesGame()" class="btn btn-primary">Играть</button>
-                        <button id="mines-cashout-btn" onclick="cashoutMines()" class="btn btn-success" disabled>Забрать 0.00 ₽</button>
-                        <div id="mines-status" class="game-status">Установите ставку и начните игру</div>
+                        <button id="mines-start-btn" class="btn btn-primary">Играть</button>
                     </div>
-                    <div class="board-panel">
-                        <div id="mines-grid" class="mines-grid"></div>
+                    <div class="board-panel flex-column">
+                        <div class="mines-grid" id="mines-grid">
+                            </div>
+                        <div id="mines-status" class="game-status text-center" style="margin-top: 20px; font-weight: 600;">Установите ставку и начните игру</div>
                     </div>
                 </div>
             </section>
@@ -79,21 +71,19 @@
             <section id="game-crash" class="game-section">
                 <div class="game-wrapper">
                     <div class="controls-panel">
-                        <h3>📈 КРАШ</h3>
-                        <div class="input-group">
-                            <label>Ставка (₽):</label>
+                        <h3>📈 КРАШ (CRASH)</h3>
+                        <p style="font-size: 14px; opacity: 0.8;">График летит вверх, увеличивая вашу ставку. Успейте забрать выигрыш до того, как график упадет!</p>
+                        <div style="margin-top: 15px; margin-bottom: 20px;">
+                            <label style="font-size: 13px; font-weight:600;">Размер ставки:</label>
                             <input type="number" id="crash-bet" value="10" min="1">
                         </div>
-                        <button id="crash-btn" onclick="handleCrashAction()" class="btn btn-primary">Ставка</button>
-                        <div id="crash-status" class="game-status">Ожидание ставки...</div>
+                        <button id="crash-btn" class="btn btn-primary">Взлететь</button>
                     </div>
-                    <div class="board-panel crash-board">
-                        <div class="crash-graph-container">
-                            <div id="crash-multiplier">1.00x</div>
-                            <svg id="crash-svg" width="100%" height="100%">
-                                <path id="crash-line" d="M 0 300 Q 150 280 400 300" fill="none" stroke="#ff4757" stroke-width="5" style="display:none;"/>
-                            </svg>
+                    <div class="board-panel flex-column">
+                        <div class="crash-display">
+                            <div id="crash-mult" class="crash-multiplier">1.00x</div>
                         </div>
+                        <div id="crash-status" class="game-status text-center" style="margin-top: 20px; font-weight: 600;">Сделайте ставку и нажмите «Взлететь»</div>
                     </div>
                 </div>
             </section>
@@ -101,53 +91,57 @@
             <section id="game-dice" class="game-section">
                 <div class="game-wrapper">
                     <div class="controls-panel">
-                        <h3>🎲 ДАЙС (Кобыла/Больше-Меньше)</h3>
-                        <div class="input-group">
-                            <label>Ставка (₽):</label>
+                        <h3>🎲 ДАЙС (DICE)</h3>
+                        <p style="font-size: 14px; opacity: 0.8;">Выберите диапазон чисел на кубике. Чем меньше диапазон — тем выше коэффициент выплаты.</p>
+                        <div style="margin-top: 10px;">
+                            <label style="font-size: 13px; font-weight:600;">Сумма ставки:</label>
                             <input type="number" id="dice-bet" value="10" min="1">
                         </div>
-                        <div class="input-group">
-                            <label>Шанс игры (<span id="dice-chance-val">50</span>%):</label>
-                            <input type="range" id="dice-chance" min="1" max="95" value="50" oninput="updateDiceValues()">
+                        <div style="margin-top: 10px;">
+                            <label style="font-size: 13px; font-weight:600;">Минимум (от 0):</label>
+                            <input type="number" id="dice-range-min" value="0" min="0" max="100">
                         </div>
-                        <div class="dice-info-block">
-                            <div>Возможный выигрыш: <span id="dice-payout">20.00</span> ₽</div>
-                            <div>Множитель: <span id="dice-multiplier">x2.00</span></div>
+                        <div style="margin-top: 10px; margin-bottom: 15px;">
+                            <label style="font-size: 13px; font-weight:600;">Максимум (до 100):</label>
+                            <input type="number" id="dice-range-max" value="50" min="0" max="100">
                         </div>
-                        <div class="bet-buttons" style="margin-top: 10px;">
-                            <button onclick="playDice('less')" class="btn btn-danger" style="flex: 1;">Меньше <span id="dice-less-range">50.00</span></button>
-                            <button onclick="playDice('more')" class="btn btn-success" style="flex: 1;">Больше <span id="dice-more-range">49.99</span></button>
+                        <div style="font-size: 14px; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px;">
+                            <div>Шанс: <span id="dice-chance" style="color:var(--success); font-weight:700;">50.50%</span></div>
+                            <div>Множитель: <span id="dice-mult" style="color:var(--warning); font-weight:700;">1.94x</span></div>
                         </div>
-                        <div id="dice-status" class="game-status">Выставите шанс и выберите направление</div>
+                        <button onclick="playDice()" class="btn btn-primary">Бросить кость</button>
                     </div>
-                    <div class="board-panel" style="flex-direction: column; gap: 20px;">
-                        <div style="font-size: 16px; color: var(--text-color); opacity: 0.7;">Выпавшее число:</div>
-                        <div id="dice-roll-result" style="font-size: 72px; font-weight: 800; color: #fff; text-shadow: 0 0 15px var(--primary);">00.00</div>
+                    <div class="board-panel flex-column">
+                        <div class="dice-container">
+                            <div class="dice-cube"><span id="dice-cube-val">?</span></div>
+                        </div>
+                        <div id="dice-status" class="game-status text-center" style="margin-top: 25px; font-weight: 600;">Укажите настройки диапазона чисел и бросайте кубик</div>
                     </div>
                 </div>
             </section>
 
-            <section id="game-coinflip" class="game-section">
+            <section id="game-coin" class="game-section">
                 <div class="game-wrapper">
                     <div class="controls-panel">
-                        <h3>🪙 МОНЕТКА (CoinFlip)</h3>
-                        <div class="input-group">
-                            <label>Ставка (₽):</label>
-                            <input type="number" id="coinflip-bet" value="10" min="1">
+                        <h3>🪙 МОНЕТКА (COINFLIP)</h3>
+                        <p style="font-size: 14px; opacity: 0.8;">Выберите сторону монетки — Орел или Решка. Удвойте ставку при победе с шансом 50%!</p>
+                        <div style="margin-top: 15px; margin-bottom: 20px;">
+                            <label style="font-size: 13px; font-weight:600;">Сумма вашей ставки:</label>
+                            <input type="number" id="coin-bet" value="10" min="1">
                         </div>
-                        <div class="bet-buttons" style="flex-direction: column; gap: 10px;">
-                            <button onclick="playCoinflip('heads')" class="btn btn-bonus" style="color: #000; width: 100%;">Орёл (x2.00)</button>
-                            <button onclick="playCoinflip('tails')" class="btn btn-secondary" style="width: 100%;">Решка (x2.00)</button>
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="playCoin('heads')" class="btn btn-warning" style="flex: 1;">Орёл (x1.96)</button>
+                            <button onclick="playCoin('tails')" class="btn btn-secondary" style="flex: 1;">Решка (x1.96)</button>
                         </div>
-                        <div id="coinflip-status" class="game-status">Выберите сторону монеты и сумму</div>
                     </div>
-                    <div class="board-panel">
+                    <div class="board-panel flex-column">
                         <div class="coin-container">
-                            <div id="coin" class="coin">
-                                <div class="side heads">👑<br>Орёл</div>
-                                <div class="side tails">🪙<br>Решка</div>
+                            <div id="coin">
+                                <div class="coin-side coin-heads">👑</div>
+                                <div class="coin-side coin-tails">🦅</div>
                             </div>
                         </div>
+                        <div id="coin-status" class="game-status text-center" style="font-weight: 600; margin-top: 20px;">Выберите сторону монетки для ставки</div>
                     </div>
                 </div>
             </section>
@@ -156,63 +150,75 @@
                 <div class="game-wrapper">
                     <div class="controls-panel">
                         <h3>🎡 КОЛЕСО ФОРТУНЫ</h3>
-                        <div class="input-group">
-                            <label>Ставка (₽):</label>
+                        <p style="font-size: 14px; opacity: 0.8;">Запустите колесо удачи с разноцветными секторами. Множители делят вашу ставку от х0 до х5!</p>
+                        <div style="margin-top: 15px; margin-bottom: 20px;">
+                            <label style="font-size: 13px; font-weight:600;">Сумма вашей ставки:</label>
                             <input type="number" id="wheel-bet" value="10" min="1">
                         </div>
-                        <div class="input-group">
-                            <label>Режим риска:</label>
-                            <select id="wheel-risk" onchange="drawWheelGraphics()" style="padding: 10px; border-radius: 6px; background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color);">
-                                <option value="low">Низкий (Стабильный)</option>
-                                <option value="medium" selected>Средний (Классика)</option>
-                                <option value="high">Высокий (Хайп)</option>
-                            </select>
-                        </div>
-                        <button onclick="spinWheelFortune()" id="wheel-spin-btn" class="btn btn-primary" style="width: 100%;">Крутить колесо</button>
-                        <div id="wheel-status" class="game-status">Выберите степень риска и крутите барабан</div>
+                        <button onclick="spinWheel()" class="btn btn-primary">Вращать колесо</button>
                     </div>
-                    <div class="board-panel" style="position: relative;">
-                        <div class="wheel-pointer">▼</div>
-                        <canvas id="wheel-canvas" width="300" height="300"></canvas>
+                    <div class="board-panel flex-column">
+                        <div class="wheel-container">
+                            <div class="wheel-pointer"></div>
+                            <canvas id="wheel-canvas" width="320" height="320"></canvas>
+                        </div>
+                        <div id="wheel-status" class="game-status text-center" style="font-weight: 600; margin-top: 20px;">Запустите колесо для получения множителя</div>
                     </div>
                 </div>
             </section>
 
             <section id="game-roulette" class="game-section">
                 <div class="game-wrapper flex-column">
-                    <h3>🎡 РУЛЕТКА</h3>
-                    <div class="roulette-wheel-container">
-                        <div class="roulette-marker"></div>
-                        <div id="roulette-tape" class="roulette-tape"></div>
+                    <h3>🎨 РУЛЕТКА (ROULETTE)</h3>
+                    <p style="font-size: 14px; opacity: 0.8; margin-bottom: 15px;">Делайте ставки на классические цвета рулетки: Красное (х2), Чёрное (х2) или редкое Зелёное (х14).</p>
+                    <div class="board-panel flex-column" style="background: none; padding: 0; min-height: auto; margin-bottom: 25px;">
+                        <div class="roulette-carousel">
+                            <div class="roulette-marker"></div>
+                            <div class="roulette-tape" id="roulette-container-tape">
+                                </div>
+                        </div>
                     </div>
-                    <div class="bet-box-container">
-                        <input type="number" id="roulette-bet" value="10" min="1">
-                        <div class="bet-buttons">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px;">
+                        <div style="width: 200px;">
+                            <label style="font-size: 13px; font-weight:600;">Сумма ставки:</label>
+                            <input type="number" id="roulette-bet" value="10" min="1">
+                        </div>
+                        <div style="display: flex; gap: 10px; flex: 1; justify-content: flex-end;">
                             <button onclick="placeRouletteBet('red')" class="btn btn-danger">Красное (x2)</button>
                             <button onclick="placeRouletteBet('green')" class="btn btn-success">Зеленое (x14)</button>
                             <button onclick="placeRouletteBet('black')" class="btn btn-dark">Черное (x2)</button>
                         </div>
                     </div>
-                    <div id="roulette-status" class="game-status text-center">Выберите сумму и нажмите на цвет</div>
+                    <div id="roulette-status" class="game-status text-center" style="margin-top: 20px; font-weight: 600;">Выберите сумму и нажмите на цвет</div>
                 </div>
             </section>
 
             <section id="game-slots" class="game-section">
                 <div class="game-wrapper flex-column">
-                    <h3>🎰 СЛОТЫ</h3>
-                    <div class="slots-machine">
+                    <h3>🎰 СЛОТЫ (SLOTS)</h3>
+                    <div class="slots-machine" style="justify-content: center;">
                         <div class="slot-reel" id="reel-1">🍒</div>
                         <div class="slot-reel" id="reel-2">🍋</div>
                         <div class="slot-reel" id="reel-3">💎</div>
                     </div>
-                    <div class="slots-controls">
+                    <div class="slots-controls" style="margin: 0 auto 15px auto;">
                         <input type="number" id="slots-bet" value="10" min="1">
                         <button onclick="spinSlots()" class="btn btn-primary">Крутить</button>
                     </div>
-                    <div id="slots-status" class="game-status text-center">Испытайте удачу! 3 одинаковых в ряд — победа!</div>
+                    <div id="slots-status" class="game-status text-center" style="font-weight: 600;">Испытайте удачу! 3 одинаковых в ряд — победа!</div>
                 </div>
             </section>
         </main>
+
+        <aside class="sidebar">
+            <button onclick="switchTab('game-mines', this)" class="nav-btn active">💣 Мины</button>
+            <button onclick="switchTab('game-crash', this)" class="nav-btn">📈 Краш</button>
+            <button onclick="switchTab('game-dice', this)" class="nav-btn">🎲 Дайс</button>
+            <button onclick="switchTab('game-coin', this)" class="nav-btn">🪙 Монетка</button>
+            <button onclick="switchTab('game-wheel', this)" class="nav-btn">🎡 Колесо</button>
+            <button onclick="switchTab('game-roulette', this)" class="nav-btn">🎨 Рулетка</button>
+            <button onclick="switchTab('game-slots', this)" class="nav-btn">🎰 Слоты</button>
+        </aside>
     </div>
 
     <script src="script.js"></script>
