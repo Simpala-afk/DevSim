@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Симулятор Экономических Игр</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+
+    <div id="disclaimer-modal" class="modal active">
+        <div class="modal-content">
+            <h2>⚠️ ВНИМАНИЕ И ДИСКЛЕЙМЕР</h2>
+            <p>Данный сайт является исключительно визуальным симулятором игровых механик.</p>
+            <p>Здесь <strong>нет реальных денег</strong>, пополнений баланса, азартных игр или вывода средств. Вся валюта внутриигровая (виртуальные рубли) и создана ради демонстрации работы алгоритмов. Играя здесь, вы соглашаетесь, что это просто симуляция.</p>
+            <button onclick="closeDisclaimer()" class="btn btn-success">Я всё понял и согласен</button>
+        </div>
+    </div>
+
+    <div id="donate-modal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <h2>💎 Виртуальное пополнение (Донат)</h2>
+            <p>Выберите сумму для мгновенного зачисления на баланс:</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px; margin: 20px 0;">
+                <button id="donate-10" onclick="triggerDonate(10)" class="btn btn-primary" style="width: 100%;">+10 ₽ (Раз в 10 сек)</button>
+                <button id="donate-100" onclick="triggerDonate(100)" class="btn btn-success" style="width: 100%;">+100 ₽ (Раз в 1 мин)</button>
+                <button id="donate-500" onclick="triggerDonate(500)" class="btn btn-bonus" style="width: 100%; color: #000;">+500 ₽ (Раз в 1 час)</button>
+                <button id="donate-1000" onclick="triggerDonate(1000)" class="btn btn-danger" style="width: 100%;">+1000 ₽ (Раз в 2 часа)</button>
+            </div>
+            
+            <button onclick="closeDonateModal()" class="btn btn-secondary" style="width: 100%;">Закрыть</button>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo">🎰 DevSimulator</div>
+        <div class="header-controls">
+            <div class="balance-display" onclick="openDonateModal()" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" title="Нажмите для пополнения">
+                💸 Баланс: <span id="balance-val">0</span> ₽
+            </div>
+            <button id="bonus-btn" onclick="claimBonus()" class="btn btn-bonus">Бонус (50₽)</button>
+            <button id="theme-toggle-btn" onclick="toggleTheme()" class="btn btn-secondary">☀️ Светлая тема</button>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <button class="nav-btn active" onclick="switchTab('mines', this)">💣 Мины</button>
+            <button class="nav-btn" onclick="switchTab('crash', this)">📈 Краш</button>
+            <button class="nav-btn" onclick="switchTab('roulette', this)">🎡 Рулетка</button>
+            <button class="nav-btn" onclick="switchTab('slots', this)">🎰 Слоты</button>
+        </aside>
+
+        <main class="game-area">
+
+            <section id="game-mines" class="game-section active">
+                <div class="game-wrapper">
+                    <div class="controls-panel">
+                        <h3>💣 МИНЫ</h3>
+                        <div class="input-group">
+                            <label>Ставка (₽):</label>
+                            <input type="number" id="mines-bet" value="10" min="1">
+                        </div>
+                        <div class="input-group">
+                            <label>Количество мин (1-24):</label>
+                            <input type="number" id="mines-count" value="3" min="1" max="24">
+                        </div>
+                        <button id="mines-start-btn" onclick="startMinesGame()" class="btn btn-primary">Играть</button>
+                        <button id="mines-cashout-btn" onclick="cashoutMines()" class="btn btn-success" disabled>Забрать 0.00 ₽</button>
+                        <div id="mines-status" class="game-status">Установите ставку и начните игру</div>
+                    </div>
+                    <div class="board-panel">
+                        <div id="mines-grid" class="mines-grid"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="game-crash" class="game-section">
+                <div class="game-wrapper">
+                    <div class="controls-panel">
+                        <h3>📈 КРАШ</h3>
+                        <div class="input-group">
+                            <label>Ставка (₽):</label>
+                            <input type="number" id="crash-bet" value="10" min="1">
+                        </div>
+                        <button id="crash-btn" onclick="handleCrashAction()" class="btn btn-primary">Ставка</button>
+                        <div id="crash-status" class="game-status">Ожидание ставки...</div>
+                    </div>
+                    <div class="board-panel crash-board">
+                        <div class="crash-graph-container">
+                            <div id="crash-multiplier">1.00x</div>
+                            <svg id="crash-svg" width="100%" height="100%">
+                                <path id="crash-line" d="M 0 300 Q 150 280 400 300" fill="none" stroke="#ff4757" stroke-width="5" style="display:none;"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="game-roulette" class="game-section">
+                <div class="game-wrapper flex-column">
+                    <h3>🎡 РУЛЕТКА (Красное / Черное / Зеленое)</h3>
+                    <div class="roulette-wheel-container">
+                        <div class="roulette-marker"></div>
+                        <div id="roulette-tape" class="roulette-tape"></div>
+                    </div>
+                    <div class="roulette-betting-table">
+                        <div class="bet-box-container">
+                            <input type="number" id="roulette-bet" value="10" min="1" placeholder="Ваша ставка">
+                        </div>
+                        <div class="bet-buttons">
+                            <button onclick="placeRouletteBet('red')" class="btn btn-danger">Красное (x2)</button>
+                            <button onclick="placeRouletteBet('green')" class="btn btn-success">Зеленое (x14)</button>
+                            <button onclick="placeRouletteBet('black')" class="btn btn-dark">Черное (x2)</button>
+                        </div>
+                    </div>
+                    <div id="roulette-status" class="game-status text-center">Выберите сумму и нажмите на цвет</div>
+                </div>
+            </section>
+
+            <section id="game-slots" class="game-section">
+                <div class="game-wrapper flex-column">
+                    <h3>🎰 СЛОТЫ</h3>
+                    <div class="slots-machine">
+                        <div class="slot-reel" id="reel-1">🍒</div>
+                        <div class="slot-reel" id="reel-2">🍋</div>
+                        <div class="slot-reel" id="reel-3">💎</div>
+                    </div>
+                    <div class="slots-controls">
+                        <input type="number" id="slots-bet" value="10" min="1">
+                        <button onclick="spinSlots()" class="btn btn-primary">Крутить</button>
+                    </div>
+                    <div id="slots-status" class="game-status text-center">Испытайте удачу! 3 одинаковых в ряд — победа!</div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

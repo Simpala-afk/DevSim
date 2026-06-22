@@ -1,0 +1,184 @@
+/* Переменные для легкой смены тем */
+.dark-theme {
+    --bg-color: #1e1e24;
+    --card-bg: #2a2a35;
+    --text-color: #f1f2f6;
+    --border-color: #3f3f4e;
+    --sidebar-bg: #141418;
+    --btn-secondary: #4b4b5c;
+}
+
+.light-theme {
+    --bg-color: #f1f2f6;
+    --card-bg: #ffffff;
+    --text-color: #2f3542;
+    --border-color: #ced6e0;
+    --sidebar-bg: #dfe4ea;
+    --btn-secondary: #a4b0be;
+}
+
+:root {
+    --primary: #5352ed;
+    --success: #2ed573;
+    --danger: #ff4757;
+    --warning: #ffa502;
+    --dark: #2f3542;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Модальное окно дисклеймера */
+.modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.85);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 1000;
+    opacity: 0; visibility: hidden;
+    transition: 0.3s ease;
+}
+.modal.active { opacity: 1; visibility: visible; }
+.modal-content {
+    background-color: var(--card-bg);
+    padding: 30px; border-radius: 12px; max-width: 500px;
+    text-align: center; border: 2px solid var(--border-color);
+}
+.modal-content h2 { color: var(--danger); margin-bottom: 15px; }
+.modal-content p { margin-bottom: 15px; line-height: 1.5; }
+
+/* Хедер */
+header {
+    background-color: var(--sidebar-bg);
+    padding: 15px 30px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+.logo { font-size: 22px; font-weight: bold; color: var(--primary); }
+.header-controls { display: flex; align-items: center; gap: 15px; }
+.balance-display { font-size: 18px; font-weight: bold; background: rgba(83, 82, 237, 0.1); padding: 8px 15px; border-radius: 6px; border: 1px solid var(--primary); }
+
+/* Кнопки */
+.btn {
+    padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px;
+}
+.btn-primary { background-color: var(--primary); color: #fff; }
+.btn-success { background-color: var(--success); color: #fff; }
+.btn-danger { background-color: var(--danger); color: #fff; }
+.btn-dark { background-color: var(--dark); color: #fff; }
+.btn-secondary { background-color: var(--btn-secondary); color: var(--text-color); }
+.btn-bonus { background-color: var(--warning); color: #000; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Контейнер приложения */
+.app-container { display: flex; flex: 1; height: calc(100vh - 70px); }
+.sidebar { width: 220px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); padding: 20px 10px; display: flex; flex-direction: column; gap: 10px; }
+.nav-btn { background: none; border: none; color: var(--text-color); padding: 12px 15px; text-align: left; font-size: 16px; font-weight: 600; border-radius: 8px; cursor: pointer; }
+.nav-btn:hover { background-color: rgba(255,255,255,0.05); }
+.nav-btn.active { background-color: var(--primary); color: #fff; }
+
+.game-area { flex: 1; padding: 30px; overflow-y: auto; position: relative; }
+.game-section { display: none; height: 100%; }
+.game-section.active { display: block; }
+/* ==========================================
+   СТИЛИ ДЛЯ КАСТОМНЫХ УВЕДОМЛЕНИЙ (TOASTS)
+   ========================================== */
+#notification-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+}
+
+.toast {
+    min-width: 280px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transform: translateX(120%);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-left: 6px solid rgba(0, 0, 0, 0.2);
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+/* Цвета для разных типов событий */
+.toast-success {
+    background-color: #2ed573; /* Зеленый */
+}
+
+.toast-danger {
+    background-color: #ff4757; /* Красный */
+}
+
+.toast-info {
+    background-color: #5352ed; /* Синий */
+}
+
+/* Сетка для макета игр */
+.game-wrapper { display: flex; gap: 30px; background-color: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); height: 100%; }
+.flex-column { flex-direction: column; justify-content: center; align-items: center; }
+.controls-panel { width: 300px; display: flex; flex-direction: column; gap: 15px; }
+.board-panel { flex: 1; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.1); border-radius: 8px; border: 1px dashed var(--border-color); }
+.input-group { display: flex; flex-direction: column; gap: 5px; }
+.input-group input { padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); font-size: 16px; }
+.game-status { padding: 12px; border-radius: 6px; background: rgba(255,255,255,0.05); font-style: italic; border-left: 4px solid var(--primary); margin-top: auto;}
+.text-center { text-align: center; margin-top: 20px; border: none; border-top: 2px dashed var(--border-color); }
+
+/* РЕЖИМ: МИНЫ */
+.mines-grid { display: grid; grid-template-columns: repeat(5, 65px); grid-template-rows: repeat(5, 65px); gap: 10px; }
+.mine-cell { background-color: var(--btn-secondary); border-radius: 8px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: bold; border: 1px solid rgba(0,0,0,0.2); }
+.mine-cell.safe { background-color: var(--success); color: white; cursor: default; }
+.mine-cell.exploded { background-color: var(--danger); color: white; cursor: default; }
+
+/* РЕЖИМ: КРАШ */
+.crash-board { position: relative; background: #0c0d14 !important; overflow: hidden; }
+.crash-graph-container { width: 100%; height: 100%; position: relative; }
+#crash-multiplier { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 64px; font-weight: 800; color: #fff; text-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 5; }
+
+/* РЕЖИМ: РУЛЕТКА */
+.roulette-wheel-container { position: relative; width: 600px; height: 80px; border: 4px solid var(--border-color); border-radius: 10px; overflow: hidden; background: #15161b; margin: 20px 0; }
+.roulette-marker { position: absolute; left: 50%; top: 0; width: 4px; height: 100%; background: var(--warning); z-index: 10; transform: translateX(-50%); box-shadow: 0 0 10px var(--warning); }
+.roulette-tape { display: flex; position: absolute; left: 0; top: 0; height: 100%; transition: transform 0s cubic-bezier(0.1, 0.8, 0.1, 1); }
+.roulette-cell { width: 80px; height: 100%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px; color: #fff; flex-shrink: 0; }
+.cell-red { background-color: var(--danger); }
+.cell-black { background-color: #222; }
+.cell-green { background-color: var(--success); }
+.bet-box-container input { padding: 12px; font-size: 18px; text-align: center; border-radius: 6px; background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); width: 200px; margin-bottom: 15px;}
+.bet-buttons { display: flex; gap: 15px; }
+
+/* РЕЖИМ: СЛОТЫ */
+.slots-machine { display: flex; gap: 20px; background: #111; padding: 25px; border-radius: 12px; border: 4px solid var(--border-color); margin-bottom: 25px; }
+.slot-reel { width: 90px; height: 120px; background: #fff; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 54px; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); border: 2px solid #333; }
+.slots-controls { display: flex; gap: 15px; }
+.slots-controls input { padding: 10px; font-size: 16px; width: 120px; border-radius: 6px; background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); }
+
+/* Блокировка кнопок доната при кулдауне */
+.modal-content button:disabled {
+    background-color: var(--btn-secondary) !important;
+    color: var(--text-color) !important;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
