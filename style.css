@@ -182,3 +182,128 @@ header {
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+/* ==========================================
+   МЕДИА-ЗАПРОСЫ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ (АДАПТИВ)
+   ========================================== */
+
+@media (max-width: 768px) {
+    /* 1. Изменяем направление главного контейнера на вертикальное */
+    .app-container {
+        flex-direction: column;
+        height: auto;
+        min-height: calc(100vh - 120px);
+    }
+
+    /* 2. Адаптируем шапку сайта */
+    header {
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+        text-align: center;
+    }
+
+    .header-controls {
+        width: 100%;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .balance-display {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+
+    .btn-bonus, #theme-toggle-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    /* 3. Превращаем боковое меню в горизонтальную панель вкладок сверху */
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto; /* Если кнопок станет много, их можно будет скроллить пальцем */
+        padding: 5px;
+        background-color: #1a1a24;
+        border-right: none;
+        border-bottom: 1px solid #2d2d3f;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        gap: 5px;
+    }
+
+    .nav-btn {
+        flex: 1; /* Кнопки будут делиться поровну по ширине */
+        white-space: nowrap;
+        padding: 10px 5px;
+        font-size: 14px;
+        justify-content: center;
+    }
+
+    /* 4. Расширяем игровую зону на всю ширину экрана */
+    .game-area {
+        padding: 10px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* 5. Перестраиваем панели внутри самих игр */
+    .game-wrapper {
+        flex-direction: column !important; /* Панель управления и само поле теперь будут друг под другом */
+        gap: 15px;
+    }
+
+    .controls-panel, .board-panel {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    /* Корректировка сетки для Мирового поля (Мины) */
+    .mines-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .mine-cell {
+        aspect-ratio: 1; /* Делает ячейки строго квадратными на любом экране */
+        height: auto;
+        font-size: 18px;
+    }
+
+    /* Корректировка для Краша */
+    .crash-board {
+        height: 250px; /* Уменьшаем высоту графика на мобилках */
+    }
+
+    #crash-multiplier {
+        font-size: 32px;
+    }
+
+    /* Корректировка для Рулетки */
+    .roulette-wheel-container {
+        width: 100%;
+        max-width: 340px;
+        margin: 0 auto;
+    }
+
+    .bet-buttons {
+        flex-direction: column; /* Кнопки ставок встают в столбик, чтобы по ним было удобно тапать */
+        width: 100%;
+    }
+    
+    .bet-buttons button {
+        width: 100%;
+    }
+
+    /* Модальные окна делаем более компактными */
+    .modal-content {
+        width: 90% !important;
+        padding: 15px;
+        margin: 10px;
+    }
+}
