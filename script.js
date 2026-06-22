@@ -625,7 +625,7 @@ function placeRouletteBet(chosenColor) {
 
     const betInput = document.getElementById('roulette-bet');
     const bet = parseFloat(betInput.value);
-    if (isNaN(bet) || bet <= 0 || bet > balance) { showNotification("Неверная ставка!", "danger"); return; }
+    if (isNaN(bet)  bet <= 0  bet > balance) { showNotification("Неверная ставка!", "danger"); return; }
     
     balance -= bet;
     saveBalance();
@@ -634,13 +634,20 @@ function placeRouletteBet(chosenColor) {
     document.getElementById('roulette-status').innerText = "Колесо крутится...";
 
     const tape = document.getElementById('roulette-tape');
+    const container = document.querySelector('.roulette-wheel-container');
+    
+    // Динамически получаем реальную ширину контейнера на экране смартфона
+    const containerWidth = container.offsetWidth; 
+
     const targetCellIndex = 45 + Math.floor(Math.random() * 15);
     const winningColor = rouletteOrder[targetCellIndex % 15];
     const cellWidth = 80; 
-    const offset = (targetCellIndex * cellWidth) - 300 + (cellWidth / 2);
+
+    // Вычисляем точное смещение с учётом реального центра экрана
+    const offset = (targetCellIndex * cellWidth) - (containerWidth / 2) + (cellWidth / 2);
 
     tape.style.transition = "transform 4s cubic-bezier(0.1, 0.8, 0.1, 1)";
-    tape.style.transform = `translateX(-${offset}px)`;
+    tape.style.transform = translateX(-${offset}px);
 
     const buttonsContainer = document.querySelector('#game-roulette .bet-buttons');
 
@@ -651,15 +658,15 @@ function placeRouletteBet(chosenColor) {
             const winnings = bet * multiplier;
             balance += winnings;
             saveBalance();
-            document.getElementById('roulette-status').innerText = `🎉 Выпал цвет: ${winningColor}. Выиграно ${winnings.toFixed(2)} ₽!`;
-            showNotification(`Рулетка: Победа +${winnings.toFixed(2)} ₽`, "success");
+            document.getElementById('roulette-status').innerText = 🎉 Выпал цвет: ${winningColor}. Выиграно ${winnings.toFixed(2)} ₽!;
+            showNotification(Рулетка: Победа +${winnings.toFixed(2)} ₽, "success");
         } else {
-            document.getElementById('roulette-status').innerText = `Проигрыш. Выпал цвет: ${winningColor}.`;
-            showNotification(`Рулетка, увы: цвет ${winningColor}`, "danger");
+            document.getElementById('roulette-status').innerText = Проигрыш. Выпал цвет: ${winningColor}.;
+            showNotification(Рулетка, увы: цвет ${winningColor}, "danger");
         }
         isRouletteSpinning = false;
         isRouletteGameOver = true; 
-        buttonsContainer.innerHTML = `<button onclick="resetRouletteTable()" class="btn btn-secondary" style="width: 100%;">Новая игра (Сбросить поле)</button>`;
+        buttonsContainer.innerHTML = <button onclick="resetRouletteTable()" class="btn btn-secondary" style="width: 100%;">Новая игра (Сбросить поле)</button>;
     }, 4100);
 }
 
