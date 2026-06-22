@@ -4,18 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Симулятор Экономических Игр</title>
-    <link rel="stylesheet" href="style.css">
-
-    <link rel="stylesheet" href="style.css?v=2">
-    
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body class="dark-theme">
 
     <div id="disclaimer-modal" class="modal active">
         <div class="modal-content">
             <h2>⚠️ ВНИМАНИЕ И ДИСКЛЕЙМЕР</h2>
-            <p>Данный сайт является исключительно визуальным симулятором игровых механик.</p>
-            <p>Здесь <strong>нет реальных денег</strong>, пополнений баланса, азартных игр или вывода средств. Вся валюта внутриигровая (виртуальные рубли) и создана ради демонстрации работы алгоритмов. Играя здесь, вы соглашаетесь, что это просто симуляция.</p>
+            <p>Данный сайт является исключительно визуальным симулятором игровых механик. </p>
+            <p>Здесь <strong>нет реальных денег</strong>, пополнений баланса, азартных игр или вывода средств. Вся валюта внутриигровая (виртуальные рубли) и создана ради демонстрации работы алгоритмов. Играя здесь, вы соглашаетесь, что это просто симуляция. [cite: 1, 2, 3]</p>
             <button onclick="closeDisclaimer()" class="btn btn-success">Я всё понял и согласен</button>
         </div>
     </div>
@@ -24,14 +21,12 @@
         <div class="modal-content" style="max-width: 450px;">
             <h2>💎 Виртуальное пополнение (Донат)</h2>
             <p>Выберите сумму для мгновенного зачисления на баланс:</p>
-            
             <div style="display: flex; flex-direction: column; gap: 12px; margin: 20px 0;">
                 <button id="donate-10" onclick="triggerDonate(10)" class="btn btn-primary" style="width: 100%;">+10 ₽ (Раз в 10 сек)</button>
                 <button id="donate-100" onclick="triggerDonate(100)" class="btn btn-success" style="width: 100%;">+100 ₽ (Раз в 1 мин)</button>
                 <button id="donate-500" onclick="triggerDonate(500)" class="btn btn-bonus" style="width: 100%; color: #000;">+500 ₽ (Раз в 1 час)</button>
                 <button id="donate-1000" onclick="triggerDonate(1000)" class="btn btn-danger" style="width: 100%;">+1000 ₽ (Раз в 2 часа)</button>
             </div>
-            
             <button onclick="closeDonateModal()" class="btn btn-secondary" style="width: 100%;">Закрыть</button>
         </div>
     </div>
@@ -39,7 +34,7 @@
     <header>
         <div class="logo">🎰 DevSimulator</div>
         <div class="header-controls">
-            <div class="balance-display" onclick="openDonateModal()" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" title="Нажмите для пополнения">
+            <div class="balance-display" onclick="openDonateModal()" title="Нажмите для пополнения">
                 💸 Баланс: <span id="balance-val">0</span> ₽
             </div>
             <button id="bonus-btn" onclick="claimBonus()" class="btn btn-bonus">Бонус (50₽)</button>
@@ -56,7 +51,6 @@
         </aside>
 
         <main class="game-area">
-
             <section id="game-mines" class="game-section active">
                 <div class="game-wrapper">
                     <div class="controls-panel">
@@ -103,15 +97,13 @@
 
             <section id="game-roulette" class="game-section">
                 <div class="game-wrapper flex-column">
-                    <h3>🎡 РУЛЕТКА (Красное / Черное / Зеленое)</h3>
+                    <h3>🎡 РУЛЕТКА</h3>
                     <div class="roulette-wheel-container">
                         <div class="roulette-marker"></div>
                         <div id="roulette-tape" class="roulette-tape"></div>
                     </div>
-                    <div class="roulette-betting-table">
-                        <div class="bet-box-container">
-                            <input type="number" id="roulette-bet" value="10" min="1" placeholder="Ваша ставка">
-                        </div>
+                    <div class="bet-box-container">
+                        <input type="number" id="roulette-bet" value="10" min="1">
                         <div class="bet-buttons">
                             <button onclick="placeRouletteBet('red')" class="btn btn-danger">Красное (x2)</button>
                             <button onclick="placeRouletteBet('green')" class="btn btn-success">Зеленое (x14)</button>
@@ -132,12 +124,11 @@
                     </div>
                     <div class="slots-controls">
                         <input type="number" id="slots-bet" value="10" min="1">
-                        <button onclick="spinSlots()" class="btn btn-primary">Крутить</button>
+                        <button onclick="spinSlots()\" class="btn btn-primary">Крутить</button>
                     </div>
                     <div id="slots-status" class="game-status text-center">Испытайте удачу! 3 одинаковых в ряд — победа!</div>
                 </div>
             </section>
-
         </main>
     </div>
 
