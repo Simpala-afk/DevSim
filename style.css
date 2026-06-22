@@ -99,6 +99,16 @@ body {
     gap: 10px;
     border-left: 1px solid var(--border-color); /* Бордюр слева от меню */
 }
+.sidebar-disclaimer {
+    margin-top: auto; /* Автоматически прижмет текст к самому низу меню */
+    font-size: 11px;
+    opacity: 0.35; /* Сделает текст полупрозрачным, чтоб не отвлекал */
+    text-align: center;
+    padding: 15px 5px 5px 5px;
+    line-height: 1.3;
+    pointer-events: none; /* Клик сквозь текст, чтоб не мешал */
+    color: var(--text-color);
+}
 
 /* Кнопки навигации */
 .nav-btn {
