@@ -47,16 +47,14 @@
         .vip-price { color: #ffca28; }
         .special-price { color: #ff4757; }
         .tax-price { color: #2ed573; }
-        
-        .btn-vip { background: #ffca28; color: #000; font-weight: bold; }
+                
+        .btn-vip { background: #ffca28; color: #000 !important; font-weight: bold; border: none; }
         .btn-vip:hover { background: #ffe082; }
-        .btn-special { background: #ff4757; color: #fff; font-weight: bold; }
+        .btn-special { background: #ff4757; color: #fff !important; font-weight: bold; border: none; }
         .btn-special:hover { background: #ff6b81; }
-        .btn-tax { background: #2ed573; color: #fff; font-weight: bold; }
+        .btn-tax { background: #2ed573; color: #fff !important; font-weight: bold; border: none; }
         .btn-tax:hover { background: #5edb93; }
-        
-        .btn-secret { background: #ffca28; color: #000 !important; font-weight: bold; border: none; }
-        .btn-secret:hover { background: #ffe082; }
+                
         .drop-zone {
             width: 100%;
             background-color: var(--card-bg);
@@ -71,7 +69,6 @@
             align-items: center;
             justify-content: center;
         }
-
         .win-card { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .win-car-img { max-width: 320px; width: 100%; height: 180px; object-fit: contain; border-radius: 8px; margin-bottom: 15px; }
         .win-title { font-size: 24px; font-weight: 700; margin-bottom: 5px; }
@@ -79,11 +76,16 @@
         .text-success { color: #2ecc71; }
         .text-danger { color: #e74c3c; }
         .text-info { color: #3498db; }
+        .text-jackpot { color: #f1c40f; text-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
 
         .category-navigation { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .category-tab-btn { padding: 12px 24px; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 15px; transition: all 0.2s; }
         .category-tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
         
+        #tab-diplomatic.active { background: #ffca28; color: #000; border-color: #ffca28; }
+        #tab-special.active { background: #ff4757; color: #fff; border-color: #ff4757; }
+        #tab-tax.active { background: #2ed573; color: #fff; border-color: #2ed573; }
+
         @keyframes popIn {
             0% { transform: scale(0.7); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
@@ -111,42 +113,21 @@
         <div class="drop-zone" id="drop-container">
             <div id="container-drop-result" style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                 <div style="font-size: 50px; opacity: 0.3;">⚓</div>
-                <p style="opacity: 0.6; margin-top: 10px; font-size: 16px;" id="drop-status">Купите контейнер, чтобы разгрузить его и забрать автомобиль</p>
+                <p style="opacity: 0.6; margin-top: 10px; font-size: 16px;" id="drop-status">Купите контейнер, чтобы разгрузить его и узнать содержимое</p>
             </div>
         </div>
 
         <div class="category-navigation">
             <button class="category-tab-btn active" id="tab-regular" onclick="switchCategory('regular')">Обычные</button>
             <button class="category-tab-btn" id="tab-diplomatic" onclick="switchCategory('diplomatic')">👑 Дипломатические</button>
+            <button class="category-tab-btn" id="tab-special" onclick="switchCategory('special')">🔥 Особые</button>
+            <button class="category-tab-btn" id="tab-tax" onclick="switchCategory('tax')">📊 Налоговый</button>
         </div>
 
-        <div id="section-regular" class="container-section">
-            <div class="containers-section-title">Обычные контейнеры</div>
-            <div class="containers-grid">
-                <div class="container-card">
-                    <div>
-                        <img src="images/germany.png" alt="Германия" class="container-img" onerror="this.src='https://placehold.co/400x250/2a2a35/ffffff?text=Германия'">
-                        <div class="container-title">🇩🇪 Германия</div>
-                        <div class="container-price">10 000 ₽</div>
-                    </div>
-                    <button onclick="openContainer('germany')" class="btn btn-primary" style="width: 100%;">Открыть</button>
-                    <button onclick="previewContainer('germany')" class="btn btn-secondary" style="width: 100%; margin-top: 5px;">Состав</button>
+        <div id="containers-display-zone">
+            <div class="containers-section-title" id="section-title">Обычные контейнеры</div>
+            <div class="containers-grid" id="containers-grid-target">
                 </div>
-                <div class="container-card">
-                    <div>
-                        <img src="images/dubai.png" alt="Дубай" class="container-img" onerror="this.src='https://placehold.co/400x250/2a2a35/ffffff?text=Дубай'">
-                        <div class="container-title">🇦🇪 Дубай</div>
-                        <div class="container-price">20 000 ₽</div>
-                    </div>
-                    <button onclick="openContainer('dubai')" class="btn btn-primary" style="width: 100%;">Открыть</button>
-                    <button onclick="previewContainer('dubai')" class="btn btn-secondary" style="width: 100%; margin-top: 5px;">Состав</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="section-diplomatic" class="container-section" style="display: none;">
-            <div class="containers-section-title vip-title">👑 Дипломатические контейнеры</div>
-            <p style="text-align: center; opacity: 0.5; padding: 20px;">Будут доступны в следующем обновлении...</p>
         </div>
 
     </main>
@@ -160,5 +141,78 @@
     </div>
 
     <script src="containers.js"></script>
+    
+    <script>
+        function switchCategory(cat) {
+            document.querySelectorAll('.category-tab-btn').forEach(b => b.classList.remove('active'));
+            
+            const currentTab = document.getElementById(`tab-${cat}`);
+            if (currentTab) currentTab.classList.add('active');
+
+            const titleEl = document.getElementById('section-title');
+            const gridEl = document.getElementById('containers-grid-target');
+            
+            if (!titleEl || !gridEl) return;
+            gridEl.innerHTML = ''; 
+            
+            let keys = [];
+            if (cat === 'regular') {
+                titleEl.innerText = "Обычные контейнеры";
+                titleEl.className = "containers-section-title";
+                keys = ['germany', 'dubai', 'italy'];
+            } else if (cat === 'diplomatic') {
+                titleEl.innerText = "👑 Дипломатические контейнеры";
+                titleEl.className = "containers-section-title vip-title";
+                keys = ['dip_germany', 'dip_dubai', 'dip_italy'];
+            } else if (cat === 'special') {
+                titleEl.innerText = "🔥 Особые контейнеры";
+                titleEl.className = "containers-section-title special-title";
+                keys = ['special_germany', 'special_dubai', 'special_italy'];
+            } else if (cat === 'tax') {
+                titleEl.innerText = "📊 Налоговый контейнер";
+                titleEl.className = "containers-section-title tax-title";
+                keys = ['tax_container'];
+            }
+
+            keys.forEach(key => {
+                const data = containersData[key];
+                if (!data) return;
+
+                let cardClass = "container-card";
+                let btnClass = "btn btn-primary";
+                let priceClass = "container-price";
+                
+                if (cat === 'diplomatic') { cardClass += " vip-card"; btnClass = "btn-vip"; priceClass += " vip-price"; }
+                if (cat === 'special') { cardClass += " special-card"; btnClass = "btn-special"; priceClass += " special-price"; }
+                if (cat === 'tax') { cardClass += " tax-card"; btnClass = "btn-tax"; priceClass += " tax-price"; }
+
+                let imgPath = `images/${key}.png`;
+                if (key.startsWith('dip_')) imgPath = `images/${key.replace('dip_', '')}.png`;
+                if (key.startsWith('special_')) imgPath = `images/${key.replace('special_', '')}.png`;
+                if (key === 'tax_container') imgPath = `images/tax.png`;
+
+                const cardHtml = `
+                    <div class="${cardClass}">
+                        <div>
+                            <img src="${imgPath}" alt="${data.title}" class="container-img" onerror="this.src='https://placehold.co/400x250/2a2a35/ffffff?text=${encodeURIComponent(data.title)}'">
+                            <div class="container-title">${data.title}</div>
+                            <div class="${priceClass}">${data.cost.toLocaleString('ru-RU')} ₽</div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <button onclick="openContainer('${key}')" class="btn ${btnClass}" style="width: 100%;">Открыть</button>
+                            <button onclick="previewContainer('${key}')" class="btn btn-secondary" style="width: 100%; margin-top: 5px;">Состав</button>
+                        </div>
+                    </div>
+                `;
+                gridEl.innerHTML += cardHtml;
+            });
+        }
+
+        const originalOnload = window.onload;
+        window.onload = function() {
+            if (originalOnload) originalOnload();
+            switchCategory('regular');
+        };
+    </script>
 </body>
 </html>
