@@ -97,11 +97,9 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function initPage() {
-    // Загрузка баланса с ПРАВИЛЬНЫМ КЛЮЧОМ
     balance = parseFloat(localStorage.getItem('user_balance')) || 200;
     currentTheme = localStorage.getItem('user_theme') || 'dark';
     
-    // Загружаем данные о бизнесах
     if (localStorage.getItem('player_business_data')) {
         playerBusinessData = JSON.parse(localStorage.getItem('player_business_data'));
     } else {
@@ -189,7 +187,7 @@ function openContainer(type) {
         if (dropContainer) {
             dropContainer.innerHTML = `
                 <div class="win-card" style="text-align:center;">
-                    <img src="${car.img}" alt="${car.name}" class=\"win-car-img\" style="max-width:100%; border-radius:8px; margin-bottom:15px;" onerror="this.src='https://placehold.co/500x250/2a2a35/ffffff?text=${encodeURIComponent(car.name)}'">
+                    <img src="${car.img}" alt="${car.name}" class="win-car-img" style="max-width:100%; border-radius:8px; margin-bottom:15px;" onerror="this.src='https://placehold.co/500x250/2a2a35/ffffff?text=${encodeURIComponent(car.name)}'">
                     <div class="win-title" style="font-size: 20px; font-weight:bold; margin-bottom:5px;">${car.name}</div>
                     <div class="win-cost" style="font-size:16px;">Стоимость авто: <span style="color:#2ecc71; font-weight:bold;">${car.price.toLocaleString('ru-RU')} ₽</span></div>
                     <div class="win-cost ${resultClass}" style="font-size: 16px; margin-top: 5px; font-weight: bold;">Итог: ${resultText}</div>
@@ -204,7 +202,7 @@ function openContainer(type) {
                 showNotification(`Вы выбили ${car.name} и ушли в плюс!`, "success");
             }
         } else if (diff === 0) {
-            showNotification(`Вы выбили ${car.name}. Вышли ровно в ноль.`, \"info\");
+            showNotification(`Вы выбили ${car.name}. Вышли ровно в ноль.`, "info");
         } else {
             showNotification(`Выпал транспорт ${car.name}. Убыток: ${Math.abs(diff).toLocaleString('ru-RU')} ₽`, "error");
         }
@@ -275,9 +273,6 @@ function renderMarket() {
         if (!container) return;
         
         container.innerHTML = "";
-        let currentSlots = playerBusinessData.slots[tier] || 0;
-        let activeInTier = playerBusinessData.owned.filter(b => b.tier === tier).length;
-
         businessDatabase[tier].forEach(biz => {
             const card = document.createElement('div');
             card.className = "biz-card";
@@ -334,8 +329,8 @@ function renderMyBusinesses() {
                 </div>
             </div>
             <div style="display:flex; flex-direction:column; gap:8px; margin-top:15px;">
-                <button onclick="collectBusinessProfit(${index})" class="btn btn-success" style="width:100%; font-weight:600;">Разгрузить склад (+${Math.floor(biz.products * 0.5)} ₽)</button>
-                <button onclick="sellBusiness(${index})" class="btn btn-secondary" style="width:100%; font-size:12px; opacity:0.8;">Продать за 50% стоимости</button>
+                <button onclick=\"collectBusinessProfit(${index})\" class=\"btn btn-success\" style=\"width:100%; font-weight:600;\">Разгрузить склад (+${Math.floor(biz.products * 0.5)} ₽)</button>
+                <button onclick=\"sellBusiness(${index})\" class=\"btn btn-secondary\" style=\"width:100%; font-size:12px; opacity:0.8;\">Продать за 50% стоимости</button>
             </div>
         `;
         grid.appendChild(card);
