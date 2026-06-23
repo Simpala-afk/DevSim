@@ -894,72 +894,66 @@ function renderMarket() {
 
 // Обработчик кнопки покупки бизнеса
 function buyBusiness(tier, id) {
-    const template = businessDatabase[tier].find(b => b.id === id);
-    if (!template) return;
+    // 1. Ищем бизнес
+    const bizData = businessDatabase[tier].find(b => b.id === id);
+    if (!bizData) return;
 
-    // СТРОГАЯ ПРОВЕРКА КУПЛЕННЫХ В КОНТЕЙНЕРАХ СЛОТОВ
+    // 2. Проверяем баланс
+    if (balance < bizData.cost) {
+        showNotification(`Недостаточно денег! Нужно ${bizData.cost.toLocaleString('ru-RU')} ₽`, "error");
+        return;
+    }
+
+    // 3. ПРОВЕРКА СЛОТОВ (Тут мы объединяем твою логику и мою)
+    const myBusinesses = JSON.parse(localStorage.getItem('user_businesses')) || [];
+    const activeInTier = myBusinesses.filter(b => b.tier === tier).length;
+    
+    // Получаем слоты из твоего старого хранилища (player_business_slots) 
+    // ИЛИ из нового (won_business_slots), чтобы ничего не потерять
     let slotsData = JSON.parse(localStorage.getItem('player_business_slots')) || { small: 0, medium: 0, large: 0 };
-    let currentSlots = slotsData[tier] || 0;
-    let activeInTier = myBusinesses.filter(b => b.tier === tier).length;
+    let wonSlots = JSON.parse(localStorage.getItem('won_business_slots')) || [];
+    
+    // Преобразуем tier в ключ для слотов
+    let tierKey = (tier === 'germany') ? 'small' : (tier === 'dubai') ? 'medium' : 'large';
+    let slotType = (tier === 'germany') ? 'slot_germany' : (tier === 'dubai') ? 'slot_dubai' : 'slot_italy';
+    
+    // Общее количество слотов = начальные (из slotsData) + выигранные (из wonSlots)
+    let totalAllowed = (slotsData[tierKey] || 0) + wonSlots.filter(s => s === slotType).length;
 
-    if (activeInTier >= currentSlots) {
-        showNotification(`У вас нет свободных слотов для категории "${tier === 'small' ? 'Малый' : tier === 'medium' ? 'Средний' : 'Крупный'}"! Выбивайте их в порту.`, "error");
+    if (activeInTier >= totalAllowed) {
+        showNotification(`Нет свободных слотов для категории "${tier}"! Выбейте их в порту.`, "error");
         return;
     }
 
-    if (balance < template.cost) {
-        showNotification("Недостаточно средств!", "error");
+    // 4. УСЛОВИЯ ПОСЛЕДОВАТЕЛЬНОСТИ (если они тебе нужны)
+    if (tier === 'dubai' && !myBusinesses.some(b => b.tier === 'germany')) {
+        showNotification("Ошибка! Сначала купите хотя бы один бизнес категории 'Германия'!", "danger");
+        return;
+    }
+    if (tier === 'italy' && !myBusinesses.some(b => b.tier === 'dubai')) {
+        showNotification("Ошибка! Сначала купите бизнес категории 'Дубай'!", "danger");
         return;
     }
 
-    // Условия для СРЕДНЕГО бизнеса
-    if (tier === 'medium') {
-        const hasSmall = myBusinesses.some(b => businessDatabase.small.some(s => s.id === b.id));
-        const hasDubaiSlot = localStorage.getItem('slot_dubai') === 'true';
-        
-        if (!hasSmall) {
-            showNotification("Ошибка! Сначала нужно купить хотя бы один Малый бизнес!", "danger");
-            return;
-        }
-        if (!hasDubaiSlot) {
-            showNotification("Ошибка! Нужен открытый Слот из Дубая (выбивается в контейнерах)!", "danger");
-            return;
-        }
-    }
-
-    // Условия для КРУПНОГО бизнеса
-    if (tier === 'large') {
-        const hasMedium = myBusinesses.some(b => businessDatabase.medium.some(m => m.id === b.id));
-        const hasItalySlot = localStorage.getItem('slot_italy') === 'true';
-        
-        if (!hasMedium) {
-            showNotification("Ошибка! Сначала нужно купить хотя бы один Средний бизнес!", "danger");
-            return;
-        }
-        if (!hasItalySlot) {
-            showNotification("Ошибка! Нужен открытый Слот из Италии (выбивается в контейнерах)!", "danger");
-            return;
-        }
-    }
-
-    // Списание денег и добавление в массив владения
-    balance -= biz.cost;
+    // 5. Покупка
+    balance -= bizData.cost;
     saveBalance();
 
     myBusinesses.push({
-        id: biz.id,
-        name: biz.name,
+        id: bizData.id,
+        name: bizData.name,
         tier: tier,
-        baseIncome: biz.income,
-        currentTax: biz.tax,
-        storedProfit: 0
+        baseIncome: bizData.baseIncome || bizData.income, // Поддержка обоих вариантов имени поля
+        currentTax: bizData.tax || 10,
+        storedProfit: 0,
+        buyTimestamp: Date.now()
     });
 
     localStorage.setItem('user_businesses', JSON.stringify(myBusinesses));
-    showNotification(`Поздравляем! Вы купили предприятие: "${biz.name}"`, "success");
-    
+    showNotification(`Поздравляем! Вы купили: "${bizData.name}"`, "success");
+
     renderMarket();
-    renderMyBusinesses();
+    if (typeof renderMyBusinesses === "function") renderMyBusinesses();
 }
 
 // Генерация интерфейса вкладки "Мой Бизнес"
