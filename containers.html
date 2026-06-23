@@ -369,6 +369,19 @@
         </div>
     </div>
 
-    <script src="containers.js"></script>
+    <script>
+    console.log("Проверка: скрипт загружен");
+    function openContainer(type) {
+        console.log("Кнопка нажата для:", type);
+        // Вызываем ту самую функцию, которая у вас в containers.js
+        if (typeof window.openContainerLogic === 'function') {
+            window.openContainerLogic(type);
+        } else {
+            alert("Ошибка: Логика контейнеров не найдена!");
+        }
+    }
+</script>
+<script src="containers.js?v=2"></script>
+    
 </body>
 </html>
