@@ -5,8 +5,7 @@ let currentTheme = 'dark';
 // База данных дропа по контейнерам
 const containersData = {
     germany: {
-        title: "Германия",
-        cost: 10000,
+        title: "Германия", cost: 10000,
         items: [
             { name: "Volkswagen Polo", price: 5000, img: "images/cars/vw_polo.png" },
             { name: "Opel Astra", price: 6000, img: "images/cars/opel_astra.png" },
@@ -22,8 +21,7 @@ const containersData = {
         ]
     },
     dubai: {
-        title: "Дубай",
-        cost: 20000,
+        title: "Дубай", cost: 20000,
         items: [
             { name: "Toyota Camry", price: 15000, img: "images/cars/toyota_camry.png" },
             { name: "Nissan Patrol", price: 16000, img: "images/cars/nissan_patrol.png" },
@@ -38,8 +36,7 @@ const containersData = {
         ]
     },
     italy: {
-        title: "Италия",
-        cost: 50000,
+        title: "Италия", cost: 50000,
         items: [
             { name: "Fiat 500", price: 30000, img: "images/cars/fiat_500.png" },
             { name: "Alfa Romeo Giulia", price: 35000, img: "images/cars/alfa_giulia.png" },
@@ -48,26 +45,66 @@ const containersData = {
             { name: "Lamborghini Urus", price: 50000, img: "images/cars/lambo_urus.png" },
             { name: "Ferrari F8 Tributo", price: 60000, img: "images/cars/ferrari_f8.png" },
             { name: "Lamborghini Aventador", price: 70000, img: "images/cars/lambo_aventador.png" },
-            { name: "Maserati GranTurismo", price: 100000, img: "images/cars/maserati_gt.png" }, // Из пожеланий
-            { name: "Bugatti Divo", price: 200000, img: "images/cars/bugatti_divo.png" } // Из пожеланий
+            { name: "Maserati GranTurismo", price: 100000, img: "images/cars/maserati_gt.png" },
+            { name: "Bugatti Divo", price: 200000, img: "images/cars/bugatti_divo.png" }
+        ]
+    },
+    dip_germany: {
+        title: "Дип. Германия", cost: 1000000, isVip: true,
+        items: [
+            { name: "Smart Fortwo Brabus", price: 50000, img: "images/cars/smart_brabus.png", type: "worst" },
+            { name: "Volkswagen Touareg", price: 600000, img: "images/cars/vw_touareg.png", type: "loss" },
+            { name: "Audi Q7", price: 700000, img: "images/cars/audi_q7.png", type: "loss" },
+            { name: "BMW X5 M", price: 800000, img: "images/cars/bmw_x5m.png", type: "loss" },
+            { name: "Mercedes-Benz E63 AMG", price: 900000, img: "images/cars/mercedes_e63.png", type: "loss" },
+            { name: "Porsche Panamera GTS", price: 1000000, img: "images/cars/porsche_panamera.png", type: "zero" },
+            { name: "Audi RS7 Sportback", price: 1100000, img: "images/cars/audi_rs7.png", type: "profit" },
+            { name: "Mercedes-Benz S-Class W223", price: 1200000, img: "images/cars/mercedes_s223.png", type: "profit" },
+            { name: "Porsche 911 Turbo S", price: 1300000, img: "images/cars/porsche_911turbo.png", type: "profit" },
+            { name: "Bentley Continental GT", price: 2000000, img: "images/cars/bentley_continental.png", type: "jackpot" }
+        ]
+    },
+    dip_dubai: {
+        title: "Дип. Дубай", cost: 2000000, isVip: true,
+        items: [
+            { name: "Renault Twizy", price: 75000, img: "images/cars/renault_twizy.png", type: "worst" },
+            { name: "Lexus GX 460", price: 1200000, img: "images/cars/lexus_gx.png", type: "loss" },
+            { name: "Nissan GT-R R35", price: 1400000, img: "images/cars/nissan_gtr.png", type: "loss" },
+            { name: "Mercedes-Benz AMG GT", price: 1600000, img: "images/cars/mercedes_amggt.png", type: "loss" },
+            { name: "Lamborghini Huracan STO", price: 1800000, img: "images/cars/lambo_sto.png", type: "loss" },
+            { name: "Ferrari SF90 Stradale", price: 2000000, img: "images/cars/ferrari_sf90.png", type: "zero" },
+            { name: "Aston Martin DBS", price: 2100000, img: "images/cars/aston_dbs.png", type: "profit" },
+            { name: "Rolls-Royce Ghost", price: 2200000, img: "images/cars/rr_ghost.png", type: "profit" },
+            { name: "Bugatti Veyron", price: 2300000, img: "images/cars/bugatti_veyron.png", type: "profit" },
+            { name: "McLaren P1", price: 2500000, img: "images/cars/mclaren_p1.png", type: "profit" },
+            { name: "Tesla Cybertruck", price: 3000000, img: "images/cars/tesla_cybertruck.png", type: "jackpot" }
+        ]
+    },
+    dip_italy: {
+        title: "Дип. Италия", cost: 5000000, isVip: true,
+        items: [
+            { name: "Старый ВАЗ-2104 с рынка", price: 100000, img: "images/cars/vaz_2104.png", type: "worst" },
+            { name: "Maserati Levante", price: 3000000, img: "images/cars/maserati_levante.png", type: "loss" },
+            { name: "Alfa Romeo Giulia GTA", price: 3500000, img: "images/cars/alfa_giulia_gta.png", type: "loss" },
+            { name: "Ferrari 488 Pista", price: 4000000, img: "images/cars/ferrari_pista.png", type: "loss" },
+            { name: "Lamborghini Aventador SVJ", price: 4500000, img: "images/cars/lambo_svj.png", type: "loss" },
+            { name: "Ferrari LaFerrari", price: 5000000, img: "images/cars/ferrari_laferrari.png", type: "zero" },
+            { name: "Maserati MC20", price: 5300000, img: "images/cars/maserati_mc20.png", type: "profit" },
+            { name: "Lamborghini Sian", price: 5600000, img: "images/cars/lambo_sian.png", type: "profit" },
+            { name: "Ferrari Daytona SP3", price: 5800000, img: "images/cars/ferrari_sp3.png", type: "profit" },
+            { name: "Pagani Zonda Cinque", price: 7000000, img: "images/cars/pagani_zonda.png", type: "jackpot" }
         ]
     }
 };
 
-// Инициализация при загрузке страницы
 window.onload = function() {
-    // Контейнер уведомлений
     if (!document.getElementById('notification-container')) {
         let container = document.createElement('div');
         container.id = 'notification-container';
         document.body.appendChild(container);
     }
-
-    // Синхронизация баланса из localStorage
     balance = parseFloat(localStorage.getItem('user_balance')) || 200;
     updateBalanceUI();
-
-    // Синхронизация темы
     currentTheme = localStorage.getItem('theme') || 'dark';
     applyTheme(currentTheme);
 };
@@ -80,7 +117,6 @@ function updateBalanceUI() {
     document.getElementById('user-balance').innerText = Math.floor(balance).toLocaleString('ru-RU');
 }
 
-// Переключение темы
 function toggleTheme() {
     currentTheme = (currentTheme === 'dark') ? 'light' : 'dark';
     localStorage.setItem('theme', currentTheme);
@@ -101,7 +137,6 @@ function applyTheme(theme) {
     }
 }
 
-// Система кастомных уведомлений (копирует главную страницу)
 function showNotification(message, type = 'info') {
     const container = document.getElementById('notification-container');
     const toast = document.createElement('div');
@@ -115,7 +150,32 @@ function showNotification(message, type = 'info') {
     }, 4000);
 }
 
-// ОТКРЫТИЕ КОНТЕЙНЕРА
+function showSecretAlert() {
+    showNotification("Содержимое дипломатического контейнера засекречено! Полагайтесь на удачу.", "info");
+}
+
+function showContent(type) {
+    // Показывает состав только для обычных контейнеров
+    if (type.startsWith('dip_')) return;
+    
+    const container = containersData[type];
+    const modal = document.getElementById('content-modal');
+    const list = document.getElementById('modal-list');
+    
+    document.getElementById('modal-title').innerText = `Состав: ${container.title}`;
+    list.innerHTML = '';
+    
+    container.items.forEach(item => {
+        list.innerHTML += `<li style="padding: 10px 0; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between;"><span>${item.name}</span> <b style="color: var(--success);">${item.price.toLocaleString('ru-RU')} ₽</b></li>`;
+    });
+    
+    modal.style.display = 'flex';
+}
+
+function resetDropZoneClasses(dropZone) {
+    dropZone.classList.remove('bg-drop-worst', 'bg-drop-loss', 'bg-drop-zero', 'bg-drop-profit', 'bg-drop-jackpot');
+}
+
 function openContainer(type) {
     const container = containersData[type];
     if (!container) return;
@@ -125,29 +185,26 @@ function openContainer(type) {
         return;
     }
 
-    // Списываем стоимость контейнера
     balance -= container.cost;
     saveBalance();
     updateBalanceUI();
 
     const dropContainer = document.getElementById('drop-container');
+    resetDropZoneClasses(dropContainer);
+    
     dropContainer.innerHTML = `
-        <div style="font-size: 50px; animation: spin 1s infinite linear;">📦</div>
-        <p style="margin-top: 15px; font-weight: 600;">Контейнер ${container.title} вскрывается автогеном...</p>
+        <div style="font-size: 50px; animation: spin 1s infinite linear;">💼</div>
+        <p style="margin-top: 15px; font-weight: 600;">Вскрываем замок контейнера ${container.title}...</p>
     `;
 
-    // Имитация открывания (задержка 1.2 секунды для азарта)
     setTimeout(() => {
-        // Рандомный выбор машины из пула контейнера
         const randomIndex = Math.floor(Math.random() * container.items.length);
         const car = container.items[randomIndex];
 
-        // Начисляем стоимость машины на баланс
         balance += car.price;
         saveBalance();
         updateBalanceUI();
 
-        // Считаем ушел в плюс или в минус
         const diff = car.price - container.cost;
         let resultClass = "profit";
         let resultText = `(+${diff.toLocaleString('ru-RU')} ₽)`;
@@ -160,7 +217,22 @@ function openContainer(type) {
             resultText = "(В ноль)";
         }
 
-        // Выводим результат на экран
+        // Логика изменения фона для Дипломатических контейнеров
+        if (container.isVip) {
+            if (car.type === "worst") {
+                dropContainer.classList.add('bg-drop-worst');
+            } else if (car.type === "loss") {
+                dropContainer.classList.add('bg-drop-loss');
+            } else if (car.type === "zero") {
+                dropContainer.classList.add('bg-drop-zero');
+            } else if (car.type === "profit") {
+                dropContainer.classList.add('bg-drop-profit');
+            } else if (car.type === "jackpot") {
+                dropContainer.classList.add('bg-drop-jackpot');
+                resultClass = "text-jackpot";
+            }
+        }
+
         dropContainer.innerHTML = `
             <div class="win-card">
                 <img src="${car.img}" alt="${car.name}" class="win-car-img" onerror="this.src='https://placehold.co/500x250/2a2a35/ffffff?text=${encodeURIComponent(car.name)}'">
@@ -170,30 +242,21 @@ function openContainer(type) {
             </div>
         `;
 
-        if (diff >= 0) {
-            showNotification(`Вы выбили ${car.name} и ушли в плюс!`, "success");
+        if (diff > 0) {
+            if (car.type === "jackpot") {
+                showNotification(`🔥 ОФИГЕТЬ! Вы выбили ГЛАВНЫЙ КУШ: ${car.name}!`, "success");
+            } else {
+                showNotification(`Вы выбили ${car.name} и ушли в плюс!`, "success");
+            }
+        } else if (diff === 0) {
+            showNotification(`Вы выбили ${car.name}. Вышли ровно в ноль.`, "info");
         } else {
-            showNotification(`Вы выбили ${car.name}. Окуп не удался.`, "info");
+            if (car.type === "worst") {
+                showNotification(`💀 ПОЛНЫЙ СЛИВ! Вам выпал ${car.name}...`, "danger");
+            } else {
+                showNotification(`Вы выбили ${car.name}. Окуп не удался.`, "info");
+            }
         }
 
     }, 1200);
-}
-function showContent(type) {
-    const container = containersData[type];
-    const modal = document.getElementById('content-modal');
-    const list = document.getElementById('modal-list');
-    const title = document.getElementById('modal-title');
-
-    title.innerText = `Состав: ${container.title}`;
-    list.innerHTML = '';
-
-    container.items.forEach(item => {
-        const li = document.createElement('li');
-        li.style.padding = "8px 0";
-        li.style.borderBottom = "1px solid var(--border-color)";
-        li.innerHTML = `<strong>${item.name}</strong> — <span style="color:var(--success)">${item.price.toLocaleString()} ₽</span>`;
-        list.appendChild(li);
-    });
-
-    modal.style.display = 'flex';
 }
