@@ -681,3 +681,7 @@ function openContainer(type) {
 
     }, 1200);
 }
+
+window.openContainer = openContainer;
+window.showContent = showContent;
+window.switchCategory = switchCategory;
