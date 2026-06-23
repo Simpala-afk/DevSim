@@ -77,7 +77,7 @@ const containersData = {
             { name: "Rolls-Royce Ghost", price: 2200000, img: "images/cars/rr_ghost.png", type: "profit" },
             { name: "Bugatti Veyron", price: 2300000, img: "images/cars/bugatti_veyron.png", type: "profit" },
             { name: "McLaren P1", price: 2500000, img: "images/cars/mclaren_p1.png", type: "profit" },
-            { name: "Tesla Cybertruck", price: 3000000, img: "images/cars/tesla_cybertruck.png", type: "jackpot" }
+            { name: "Tesla Cybertruck", price: 4000000, img: "images/cars/tesla_cybertruck.png", type: "jackpot" }
         ]
     },
     dip_italy: {
@@ -92,7 +92,7 @@ const containersData = {
             { name: "Maserati MC20", price: 5300000, img: "images/cars/maserati_mc20.png", type: "profit" },
             { name: "Lamborghini Sian", price: 5600000, img: "images/cars/lambo_sian.png", type: "profit" },
             { name: "Ferrari Daytona SP3", price: 5800000, img: "images/cars/ferrari_sp3.png", type: "profit" },
-            { name: "Pagani Zonda Cinque", price: 7000000, img: "images/cars/pagani_zonda.png", type: "jackpot" }
+            { name: "Pagani Zonda Cinque", price: 20000000, img: "images/cars/pagani_zonda.png", type: "jackpot" }
         ]
     }
 };
