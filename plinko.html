@@ -1,0 +1,51 @@
+// Выталкиваем шарик, чтобы не залипал
+                        let angle = Math.atan2(dy, dx);
+                        b.x = p.x + Math.cos(angle) * (b.radius + p.radius);
+                        b.y = p.y + Math.sin(angle) * (b.radius + p.radius);
+
+                        // Считаем новый вектор скорости (отскок)
+                        let speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+                        b.vx = Math.cos(angle) * speed * b.bounce + (Math.random() * 0.4 - 0.2);
+                        b.vy = Math.sin(angle) * speed * b.bounce;
+                    }
+                });
+
+                // Ограничение по бокам холста
+                if (b.x - b.radius < 0) { b.x = b.radius; b.vx *= -b.bounce; }
+                if (b.x + b.radius > canvas.width) { b.x = canvas.width - b.radius; b.vx *= -b.bounce; }
+
+                // Попадание в лунку
+                if (b.y >= bucketY) {
+                    // Ищем в какую именно лунку упал по координате X
+                    let bucketIndex = Math.floor(b.x / bucketWidth);
+                    if (bucketIndex < 0) bucketIndex = 0;
+                    if (bucketIndex >= bucketCount) bucketIndex = bucketCount - 1;
+
+                    let targetBucket = buckets[bucketIndex];
+                    let winAmount = b.bet * targetBucket.mult;
+
+                    // Зачисляем выигрыш
+                    balance += winAmount;
+                    localStorage.setItem('user_balance', balance.toFixed(2));
+                    updateBalanceUI();
+
+                    // Удаляем шарик из массива
+                    balls.splice(i, 1);
+                    continue;
+                }
+
+                // Рисуем сам шарик
+                ctx.fillStyle = '#ff3d00';
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        // Запуск бесконечного цикла отрисовки
+        update();
+    </script>
+</body>
+</html>
