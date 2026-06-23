@@ -4,7 +4,6 @@
 let balance = 200;
 let currentTheme = 'dark';
 
-// База данных дропа по контейнерам
 const containersData = {
     germany: {
         title: "Германия", cost: 10000,
@@ -39,19 +38,14 @@ const containersData = {
     }
 };
 
-// Запуск при загрузке страницы контейнеров
 window.onload = function() {
-    // Создаем контейнер для уведомлений, если его нет
     if (!document.getElementById('notification-container')) {
         let container = document.createElement('div');
         container.id = 'notification-container';
         document.body.appendChild(container);
     }
 
-    // Загрузка баланса строго в соответствии с типом данных в script.js
     balance = parseFloat(localStorage.getItem('user_balance')) || 200;
-    
-    // Синхронизация ключа темы с главной страницей ('theme' вместо 'user_theme')
     currentTheme = localStorage.getItem('theme') || 'dark';
     document.body.className = currentTheme + '-theme';
 
@@ -64,45 +58,34 @@ function saveBalance() {
 }
 
 function updateBalanceDisplay() {
-    const el = document.getElementById('balance-val');
+    // Исправленный id элемента баланса под containers.html
+    const el = document.getElementById('user-balance');
     if (el) {
         el.innerText = balance.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 }
 
-// ==========================================
-// ОСНОВНАЯ ЛОГИКА КОНТЕЙНЕРОВ
-// ==========================================
 function openContainer(type) {
     const container = containersData[type];
-    if (!container) {
-        alert("Ошибка: Логика контейнера не найдена!");
-        return;
-    }
+    if (!container) return;
 
     if (balance < container.cost) {
         showNotification("Недостаточно денег для открытия этого контейнера!", "error");
         return;
     }
 
-    // Списание средств
     balance -= container.cost;
     saveBalance();
 
-    const dropContainer = document.getElementById('container-drop-result');
-    if (dropContainer) {
-        dropContainer.innerHTML = `<div class="spinner-loader">Крутим контейнер...</div>`;
+    const dropResultZone = document.getElementById('container-drop-result');
+    if (dropResultZone) {
+        dropResultZone.innerHTML = `<div class="spinner-loader" style="font-size: 18px; font-weight: bold; padding: 40px; color: #ffa502;">🚢 Разгрузка контейнера...</div>`;
     }
-
-    // Показываем модальное окно (id="content-modal" должно соответствовать разметке в containers.html)
-    const modal = document.getElementById('content-modal');
-    if (modal) modal.style.display = 'flex';
 
     setTimeout(() => {
         const randomIndex = Math.floor(Math.random() * container.items.length);
         const item = container.items[randomIndex];
 
-        // Начисление стоимости выпавшего автомобиля на баланс
         balance += item.price;
         saveBalance();
 
@@ -113,24 +96,24 @@ function openContainer(type) {
         if (diff > 0) {
             resultText = `В ПЛЮСЕ НА +${diff.toLocaleString('ru-RU')} ₽`;
             resultClass = "text-success";
-            showNotification(`🎉 Вы выбили ${item.name} и ушли в плюс!`, "success");
+            showNotification(`🎉 Вы выбили ${item.name} в плюс!`, "success");
         } else if (diff === 0) {
             resultText = "ВЫШЛИ В НОЛЬ";
             resultClass = "text-info";
-            showNotification(`Вы выбили ${item.name}. Вышли ровно в ноль.`, "info");
+            showNotification(`Вы выбили ${item.name}. В ноль.`, "info");
         } else {
             resultText = `В МИНУСЕ НА ${Math.abs(diff).toLocaleString('ru-RU')} ₽`;
             resultClass = "text-danger";
             showNotification(`Выпал транспорт ${item.name}. Продано в минус.`, "error");
         }
 
-        if (dropContainer) {
-            dropContainer.innerHTML = `
-                <div class="win-card" style="text-align: center; padding: 15px;">
-                    <img src="${item.img}" alt="${item.name}" class="win-car-img" style="max-width: 100%; height: auto; border-radius: 8px;" onerror="this.src='https://placehold.co/500x250/2a2a35/ffffff?text=${encodeURIComponent(item.name)}'">
-                    <div class="win-title" style="font-size: 18px; font-weight: bold; margin-top: 10px;">${item.name}</div>
-                    <div class="win-cost" style="margin-top: 5px;">Стоимость автоматической продажи: <span style="color: #2ecc71; font-weight: bold;">${item.price.toLocaleString('ru-RU')} ₽</span></div>
-                    <div class="win-cost ${resultClass}" style="font-size: 16px; margin-top: 8px; font-weight: bold;">Итог: ${resultText}</div>
+        if (dropResultZone) {
+            dropResultZone.innerHTML = `
+                <div class="win-card" style="text-align: center; padding: 10px;">
+                    <img src="${item.img}" alt="${item.name}" class="win-car-img" onerror="this.src='https://placehold.co/500x250/2a2a35/ffffff?text=${encodeURIComponent(item.name)}'">
+                    <div class="win-title">${item.name}</div>
+                    <div class="win-cost">Авто-продажа: <span style="color: #2ecc71;">${item.price.toLocaleString('ru-RU')} ₽</span></div>
+                    <div class="win-cost ${resultClass}" style="font-size: 16px; margin-top: 5px; font-weight: bold;">Итог: ${resultText}</div>
                 </div>
             `;
         }
@@ -141,33 +124,42 @@ function previewContainer(type) {
     const container = containersData[type];
     if (!container) return;
 
-    const dropContainer = document.getElementById('container-drop-result');
-    if (!dropContainer) return;
+    const previewList = document.getElementById('container-preview-list');
+    if (!previewList) return;
 
     let equalChance = (100 / container.items.length).toFixed(1);
-    let htmlContent = `<div style="width:100%; max-height:300px; overflow-y:auto; padding-right:5px;">
-                        <p style="font-size:13px; opacity:0.7; margin-bottom:10px; text-align:left;">Шанс выбить предмет: ${equalChance}%.</p>
+    let htmlContent = `<div style="max-height:300px; overflow-y:auto; padding-top: 10px;">
+                        <p style="font-size:13px; opacity:0.7; margin-bottom:10px;">Шанс на каждый предмет: ${equalChance}%</p>
                         <div style="display:flex; flex-direction:column; gap:8px;">`;
 
     container.items.forEach(item => {
         htmlContent += `
-            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-color, #3a3a4a);">
-                <div style="font-weight: 600; font-size: 15px; color: #fff;">${item.name}</div>
-                <div style="font-size: 15px; font-weight: 700; color: #2ecc71;">${item.price.toLocaleString('ru-RU')} ₽</div>
+            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                <div style="font-size: 14px; color: #fff;">${item.name}</div>
+                <div style="font-size: 14px; font-weight: 700; color: #2ecc71;">${item.price.toLocaleString('ru-RU')} ₽</div>
             </div>
         `;
     });
 
     htmlContent += `</div></div>`;
-    dropContainer.innerHTML = htmlContent;
+    previewList.innerHTML = htmlContent;
     
-    const modal = document.getElementById('content-modal');
-    if (modal) modal.style.display = 'flex';
+    document.getElementById('content-modal').style.display = 'flex';
 }
 
 function closeContainerModal() {
-    const modal = document.getElementById('content-modal');
-    if (modal) modal.style.display = 'none';
+    document.getElementById('content-modal').style.display = 'none';
+}
+
+function switchCategory(cat) {
+    document.querySelectorAll('.container-section').forEach(s => s.style.display = 'none');
+    document.querySelectorAll('.category-tab-btn').forEach(b => b.classList.remove('active'));
+    
+    const targetSection = document.getElementById(`section-${cat}`);
+    const targetTab = document.getElementById(`tab-${cat}`);
+    
+    if (targetSection) targetSection.style.display = 'block';
+    if (targetTab) targetTab.classList.add('active');
 }
 
 function showNotification(text, type = 'info') {
@@ -175,16 +167,15 @@ function showNotification(text, type = 'info') {
     if (!container) return;
 
     const notif = document.createElement('div');
-    // Соответствие классам стилей из основного проекта (notification-success / notification-error)
     notif.className = `notification notification-${type}`;
+    notif.style.cssText = "position: fixed; top: 20px; right: 20px; background: #2f3542; color: #fff; padding: 12px 20px; border-radius: 6px; z-index: 9999; margin-bottom: 10px; border-left: 5px solid #ffa502; box-shadow: 0 4px 10px rgba(0,0,0,0.3);";
+    
+    if(type === 'success') notif.style.borderColor = '#2ecc71';
+    if(type === 'error') notif.style.borderColor = '#e74c3c';
+    
     notif.innerText = text;
     container.appendChild(notif);
-
-    setTimeout(() => { notif.classList.add('show'); }, 10);
-    setTimeout(() => {
-        notif.classList.remove('show');
-        setTimeout(() => { notif.remove(); }, 300);
-    }, 4000);
+    setTimeout(() => { notif.remove(); }, 3500);
 }
 
 function toggleTheme() {
