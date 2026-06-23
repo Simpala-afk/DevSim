@@ -1,41 +1,357 @@
-// Выталкиваем шарик, чтобы не залипал
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plinko — Симулятор Казино</title>
+    <style>
+        /* --- СИСТЕМНЫЕ ПЕРЕМЕННЫЕ ДЛЯ ТЕМ --- */
+        :root {
+            --bg-color: #0f0f1a;
+            --card-bg: #181824;
+            --text-color: #ffffff;
+            --border-color: #2a2a3a;
+            --btn-secondary: #2c2c3e;
+            --btn-secondary-hover: #3d3d56;
+        }
+
+        body.light-theme {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #1a1a2e;
+            --border-color: #dddddd;
+            --btn-secondary: #e4e6eb;
+            --btn-secondary-hover: #d8dadf;
+        }
+
+        /* --- ОБЩИЕ СТИЛИ СТРАНИЦЫ --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- ШАПКА ИГРЫ --- */
+        .app-header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-logo h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* --- КНОПКИ И БАЛАНС --- */
+        .btn {
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-color);
+        }
+
+        .btn-secondary {
+            background-color: var(--btn-secondary);
+        }
+        .btn-secondary:hover {
+            background-color: var(--btn-secondary-hover);
+        }
+
+        .btn-play {
+            background: #ffca28;
+            color: #000;
+            font-weight: 700;
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 202, 40, 0.3);
+        }
+        .btn-play:hover {
+            background: #ffe082;
+            transform: translateY(-1px);
+        }
+
+        .balance-display {
+            background: #2e7d32;
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 15px;
+            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.2);
+        }
+
+        /* --- ИГРОВАЯ ЗОНА --- */
+        .plinko-container {
+            flex: 1;
+            max-width: 700px;
+            width: 100%;
+            margin: 30px auto;
+            padding: 0 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #plinko-canvas {
+            background: #131322;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+            max-width: 100%;
+            height: auto;
+        }
+
+        body.light-theme #plinko-canvas {
+            background: #f8f9fa;
+        }
+      /* --- ПАНЕЛЬ СТАВОК --- */
+        .bet-controls {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 25px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+        }
+
+        .input-bet {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 11px;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 110px;
+            text-align: center;
+            font-weight: 600;
+        }
+        body.light-theme .input-bet {
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-logo">
+            <button onclick="window.close();" class="btn btn-secondary">⬅️ Назад</button>
+            <h1>🔮 Plinko</h1>
+        </div>
+        <div class="header-controls">
+            <button id="theme-btn" onclick="togglePlinkoTheme()" class="btn btn-secondary">🌙 Темная тема</button>
+            <div class="balance-display">💸 Баланс: <span id="user-balance">0</span> ₽</div>
+        </div>
+    </header>
+
+    <main class="plinko-container">
+        <canvas id="plinko-canvas" width="600" height="520"></canvas>
+
+        <div class="bet-controls">
+            <label style="font-weight: 600; font-size: 15px;">Ставка:</label>
+            <input type="number" id="bet-amount" class="input-bet" value="10" min="1" step="5">
+            <button onclick="setBet('min')" class="btn btn-secondary">Мин</button>
+            <button onclick="setBet('x2')" class="btn btn-secondary">x2</button>
+            <button onclick="launchBall()" class="btn-play">Запустить шарик 🔴</button>
+        </div>
+    </main>
+
+    <script>
+        // --- СИНХРОНИЗАЦИЯ БАЛАНСА И ТЕМЫ ---
+        let balance = parseFloat(localStorage.getItem('user_balance')) || 200;
+        
+        function updateBalanceUI() {
+            document.getElementById('user-balance').innerText = Math.floor(balance).toLocaleString('ru-RU');
+        }
+        updateBalanceUI();
+
+        // Проверка и установка текущей темы из localStorage при загрузке
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-theme');
+            document.getElementById('theme-btn').innerText = "☀️ Светлая тема";
+        }
+
+        function togglePlinkoTheme() {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            document.getElementById('theme-btn').innerText = isLight ? "☀️ Светлая тема" : "🌙 Темная тема";
+        }
+
+        function setBet(action) {
+            let input = document.getElementById('bet-amount');
+            let currentBet = parseFloat(input.value) || 10;
+            if (action === 'min') input.value = 1;
+            if (action === 'x2') input.value = currentBet * 2;
+        }
+
+        // --- ФИЗИКА И СТРУКТУРА PLINKO ---
+        const canvas = document.getElementById('plinko-canvas');
+        const ctx = canvas.getContext('2d');
+
+        const rows = 10; 
+        const pins = [];
+        const balls = [];
+        const buckets = [];
+        const multipliers = [5, 2, 1.2, 0.5, 0.2, 0.2, 0.5, 1.2, 2, 5]; 
+        const bucketCount = multipliers.length;
+
+        const startY = 60;
+        const spacingY = 36;
+        const spacingX = 36;
+
+        for (let r = 0; r < rows; r++) {
+            const count = r + 3; 
+            const rowWidth = (count - 1) * spacingX;
+            const startX = (canvas.width - rowWidth) / 2;
+            for (let i = 0; i < count; i++) {
+                pins.push({ x: startX + i * spacingX, y: startY + r * spacingY, radius: 4 });
+            }
+        }
+      const bucketWidth = canvas.width / bucketCount;
+        const bucketY = canvas.height - 40;
+
+        for (let i = 0; i < bucketCount; i++) {
+            buckets.push({ x: i * bucketWidth, y: bucketY, width: bucketWidth, height: 35, mult: multipliers[i] });
+        }
+
+        function launchBall() {
+            const betInput = document.getElementById('bet-amount');
+            let bet = parseFloat(betInput.value);
+
+            if (isNaN(bet) || bet <= 0) return;
+            if (balance < bet) {
+                alert("Недостаточно средств!");
+                return;
+            }
+
+            balance -= bet;
+            localStorage.setItem('user_balance', balance.toFixed(2));
+            updateBalanceUI();
+
+            balls.push({
+                x: canvas.width / 2 + (Math.random() * 6 - 3),
+                y: 20,
+                vx: 0,
+                vy: 0,
+                radius: 6,
+                bet: bet,
+                gravity: 0.2,
+                bounce: 0.45,
+                friction: 0.98
+            });
+        }
+
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const isLightTheme = document.body.classList.contains('light-theme');
+
+            // Отрисовка лунок
+            buckets.forEach(b => {
+                if (b.mult >= 2) ctx.fillStyle = '#2e7d32';
+                else if (b.mult >= 1) ctx.fillStyle = '#f57c00';
+                else ctx.fillStyle = '#d32f2f';
+
+                ctx.fillRect(b.x + 3, b.y, b.width - 6, b.height);
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(b.mult + 'x', b.x + b.width / 2, b.y + 22);
+            });
+
+            // Отрисовка колышков
+            ctx.fillStyle = isLightTheme ? '#7f8c8d' : '#ffffff';
+            pins.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Просчет шариков
+            for (let i = balls.length - 1; i >= 0; i--) {
+                let b = balls[i];
+                b.vy += b.gravity;
+                b.vx *= b.friction;
+                b.x += b.vx;
+                b.y += b.vy;
+
+                pins.forEach(p => {
+                    let dx = b.x - p.x;
+                    let dy = b.y - p.y;
+                    let dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < b.radius + p.radius) {
                         let angle = Math.atan2(dy, dx);
                         b.x = p.x + Math.cos(angle) * (b.radius + p.radius);
                         b.y = p.y + Math.sin(angle) * (b.radius + p.radius);
 
-                        // Считаем новый вектор скорости (отскок)
                         let speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
-                        b.vx = Math.cos(angle) * speed * b.bounce + (Math.random() * 0.4 - 0.2);
+                        b.vx = Math.cos(angle) * speed * b.bounce + (Math.random() * 0.5 - 0.25);
                         b.vy = Math.sin(angle) * speed * b.bounce;
                     }
                 });
 
-                // Ограничение по бокам холста
                 if (b.x - b.radius < 0) { b.x = b.radius; b.vx *= -b.bounce; }
                 if (b.x + b.radius > canvas.width) { b.x = canvas.width - b.radius; b.vx *= -b.bounce; }
 
-                // Попадание в лунку
                 if (b.y >= bucketY) {
-                    // Ищем в какую именно лунку упал по координате X
                     let bucketIndex = Math.floor(b.x / bucketWidth);
                     if (bucketIndex < 0) bucketIndex = 0;
                     if (bucketIndex >= bucketCount) bucketIndex = bucketCount - 1;
 
-                    let targetBucket = buckets[bucketIndex];
-                    let winAmount = b.bet * targetBucket.mult;
-
-                    // Зачисляем выигрыш
-                    balance += winAmount;
+                    balance += b.bet * buckets[bucketIndex].mult;
                     localStorage.setItem('user_balance', balance.toFixed(2));
                     updateBalanceUI();
 
-                    // Удаляем шарик из массива
                     balls.splice(i, 1);
                     continue;
                 }
 
-                // Рисуем сам шарик
-                ctx.fillStyle = '#ff3d00';
+                ctx.fillStyle = '#e53935';
                 ctx.beginPath();
                 ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
                 ctx.fill();
@@ -44,7 +360,6 @@
             requestAnimationFrame(update);
         }
 
-        // Запуск бесконечного цикла отрисовки
         update();
     </script>
 </body>
