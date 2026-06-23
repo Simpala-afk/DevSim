@@ -820,38 +820,76 @@ function returnToMainDashboard() {
 }
 
 // Генерация карточек товаров в Магазине Бизнесов
+// Функция отрисовки доступного для покупки бизнеса на Рынке
 function renderMarket() {
-    const renderSection = (tier, containerId) => {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        container.innerHTML = '';
-        
+    const marketArea = document.getElementById('business-market-area'); // или как называется твой контейнер рынка
+    if (!marketArea) return;
+
+    // 1. Считаем, сколько бизнесов КАЖДОГО ТИПА у игрока уже куплено
+    const myBusinesses = JSON.parse(localStorage.getItem('user_businesses')) || [];
+    const countOwned = {
+        germany: myBusinesses.filter(b => b.tier === 'germany').length,
+        dubai: myBusinesses.filter(b => b.tier === 'dubai').length,
+        italy: myBusinesses.filter(b => b.tier === 'italy').length
+    };
+
+    // 2. Считаем, сколько СЛОТОВ выиграно из особых контейнеров
+    const wonSlots = JSON.parse(localStorage.getItem('won_business_slots')) || [];
+    const countBonusSlots = {
+        slot_germany: wonSlots.filter(s => s === 'slot_germany').length,
+        slot_dubai: wonSlots.filter(s => s === 'slot_dubai').length,
+        slot_italy: wonSlots.filter(s => s === 'slot_italy').length
+    };
+
+    // 3. Доступные слоты = Базовый (изначально 0 или 1, смотря как у тебя) + Бонусные из контейнеров
+    // Предположим, изначально лимит 0, пока не выбьешь слот, либо 1. Давай сделаем 0 + бонусные:
+    const totalSlots = {
+        germany: 0 + countBonusSlots.slot_germany,
+        dubai: 0 + countBonusSlots.slot_dubai,
+        italy: 0 + countBonusSlots.slot_italy
+    };
+
+    // Генерируем HTML рынка (примерный шаблон, адаптируй под свои переменные)
+    let html = `<div class="business-market-grid">`;
+    
+    // Перебираем категории из твоей базы данных (например, businessDatabase)
+    for (let tier in businessDatabase) {
         businessDatabase[tier].forEach(biz => {
-            const isOwned = myBusinesses.some(b => b.id === biz.id);
-            container.innerHTML += `
-                <div class="biz-card">
-                    <div>
-                        <div class="biz-title">${biz.name}</div>
-                        <div class="biz-price">${biz.cost.toLocaleString('ru-RU')} ₽</div>
-                        <div class="biz-info">
-                            ${biz.info}<br><br>
-                            <b>Доход:</b> +${biz.income.toLocaleString('ru-RU')} ₽ / 10 сек<br>
-                            <b>Налог:</b> <span id="market-tax-${biz.id}">${biz.tax}%</span>
-                        </div>
-                    </div>
-                    <button class="btn ${isOwned ? 'btn-secondary' : 'btn-success'}" 
-                            ${isOwned ? 'disabled' : ''} 
-                            onclick="buyBusinessClick('${tier}', '${biz.id}')">
-                        ${isOwned ? '💼 Уже куплен' : '🛒 Купить бизнес'}
+            // Проверяем, есть ли свободный слот в этом тире (Германия/Дубай/Италия)
+            const hasFreeSlot = countOwned[tier] < totalSlots[tier];
+            const hasEnoughMoney = balance >= biz.cost;
+
+            // Кнопка активна только если хватает денег И есть свободный слот
+            // Если слотов нет, кнопка будет отключена (disabled)
+            let btnText = "Купить бизнес";
+            let btnDisabled = "";
+
+            if (!hasFreeSlot) {
+                btnText = "Нет свободных слотов (выбейте в контейнерах)";
+                btnDisabled = "disabled style='background: #57606f; cursor: not-allowed; opacity: 0.6;'";
+            } else if (!hasEnoughMoney) {
+                btnText = `Недостаточно средств (${biz.cost.toLocaleString('ru-RU')} ₽)`;
+                // Оставляем кнопку активной или нет — по твоему желанию. 
+                // Если хочешь предупреждение при нажатии, disabled убираем, но добавляем проверку внутри buyBusiness!
+            }
+
+            html += `
+                <div class="market-biz-card tier-${tier}">
+                    <h4>${biz.name}</h4>
+                    <p>Категория: ${tier === 'germany' ? 'Малый' : tier === 'dubai' ? 'Средний' : 'Крупный'}</p>
+                    <p>Стоимость: ${biz.cost.toLocaleString('ru-RU')} ₽</p>
+                    <p>Доход: +${biz.baseIncome.toLocaleString('ru-RU')} ₽ / 10 сек</p>
+                    <p style="font-size: 12px; opacity: 0.7;">Слоты категории: ${countOwned[tier]} / ${totalSlots[tier]}</p>
+                    <button onclick="buyBusiness('${tier}', '${biz.id}')" class="btn btn-primary" ${btnDisabled}>
+                        ${btnText}
                     </button>
                 </div>
             `;
         });
-    };
-
-    renderSection('small', 'cat-small');
-    renderSection('medium', 'cat-medium');
-    renderSection('large', 'cat-large');
+    }
+    
+    html += `</div>`;
+    marketArea.innerHTML = html;
 }
 
 // Обработчик кнопки покупки бизнеса
