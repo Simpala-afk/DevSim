@@ -122,7 +122,7 @@
             flex: 1;
             max-width: 700px;
             width: 100%;
-            margin: 30px auto;
+            margin: 20px auto;
             padding: 0 15px;
             display: flex;
             flex-direction: column;
@@ -142,13 +142,59 @@
         body.light-theme #plinko-canvas {
             background: #f8f9fa;
         }
-      /* --- ПАНЕЛЬ СТАВОК --- */
+        /* --- ПЛАШКА УВЕДОМЛЕНИЯ О РЕЗУЛЬТАТЕ --- */
+        .plinko-notification {
+            margin-top: 15px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+            min-height: 48px;
+            width: 100%;
+            max-width: 450px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .plinko-notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .notification-win {
+            background-color: rgba(46, 125, 50, 0.2);
+            border: 2px solid #2e7d32;
+            color: #4caf50;
+        }
+
+        .notification-loss {
+            background-color: rgba(211, 47, 47, 0.2);
+            border: 2px solid #d32f2f;
+            color: #ef5350;
+        }
+
+        body.light-theme .notification-win {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        body.light-theme .notification-loss {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        /* --- ПАНЕЛЬ СТАВОК --- */
         .bet-controls {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 20px;
-            margin-top: 25px;
+            margin-top: 20px;
             width: 100%;
             display: flex;
             justify-content: center;
@@ -190,6 +236,8 @@
     <main class="plinko-container">
         <canvas id="plinko-canvas" width="600" height="520"></canvas>
 
+        <div id="plinko-alert" class="plinko-notification"></div>
+
         <div class="bet-controls">
             <label style="font-weight: 600; font-size: 15px;">Ставка:</label>
             <input type="number" id="bet-amount" class="input-bet" value="10" min="1" step="5">
@@ -208,12 +256,10 @@
         }
         updateBalanceUI();
 
-        // Проверка и установка текущей темы из localStorage при загрузке
         if (localStorage.getItem('theme') === 'light') {
             document.body.classList.add('light-theme');
             document.getElementById('theme-btn').innerText = "☀️ Светлая тема";
         }
-
         function togglePlinkoTheme() {
             document.body.classList.toggle('light-theme');
             const isLight = document.body.classList.contains('light-theme');
@@ -251,7 +297,8 @@
                 pins.push({ x: startX + i * spacingX, y: startY + r * spacingY, radius: 4 });
             }
         }
-      const bucketWidth = canvas.width / bucketCount;
+
+        const bucketWidth = canvas.width / bucketCount;
         const bucketY = canvas.height - 40;
 
         for (let i = 0; i < bucketCount; i++) {
@@ -323,7 +370,6 @@
                     let dx = b.x - p.x;
                     let dy = b.y - p.y;
                     let dist = Math.sqrt(dx * dx + dy * dy);
-
                     if (dist < b.radius + p.radius) {
                         let angle = Math.atan2(dy, dx);
                         b.x = p.x + Math.cos(angle) * (b.radius + p.radius);
@@ -343,9 +389,33 @@
                     if (bucketIndex < 0) bucketIndex = 0;
                     if (bucketIndex >= bucketCount) bucketIndex = bucketCount - 1;
 
-                    balance += b.bet * buckets[bucketIndex].mult;
+                    let targetBucket = buckets[bucketIndex];
+                    let winAmount = b.bet * targetBucket.mult;
+
+                    // Зачисляем выигрыш
+                    balance += winAmount;
                     localStorage.setItem('user_balance', balance.toFixed(2));
                     updateBalanceUI();
+
+                    // --- ЛОГИКА ОТОБРАЖЕНИЯ ПЛАШКИ УВЕДОМЛЕНИЙ ---
+                    const alertBlock = document.getElementById('plinko-alert');
+                    alertBlock.className = "plinko-notification"; // сброс классов
+                    
+                    if (targetBucket.mult >= 1) {
+                        alertBlock.classList.add('notification-win');
+                        alertBlock.innerHTML = 🎉 Выиграно: +${Math.floor(winAmount).toLocaleString('ru-RU')} ₽ (Коэффициент x${targetBucket.mult});
+                    } else {
+                        alertBlock.classList.add('notification-loss');
+                        alertBlock.innerHTML = 📉 Слив: минус ${Math.floor(b.bet - winAmount).toLocaleString('ru-RU')} ₽ (Коэффициент x${targetBucket.mult});
+                    }
+
+                    alertBlock.classList.add('show');
+
+                    // Убираем плашку через 3 секунды, если нет новых шариков
+                    if (window.plinkoTimeout) clearTimeout(window.plinkoTimeout);
+                    window.plinkoTimeout = setTimeout(() => {
+                        alertBlock.classList.remove('show');
+                    }, 3000);
 
                     balls.splice(i, 1);
                     continue;
