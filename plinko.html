@@ -142,6 +142,7 @@
         body.light-theme #plinko-canvas {
             background: #f8f9fa;
         }
+
         /* --- ПЛАШКА УВЕДОМЛЕНИЯ О РЕЗУЛЬТАТЕ --- */
         .plinko-notification {
             margin-top: 15px;
@@ -259,7 +260,7 @@
         if (localStorage.getItem('theme') === 'light') {
             document.body.classList.add('light-theme');
             document.getElementById('theme-btn').innerText = "☀️ Светлая тема";
-            }
+        }
         function togglePlinkoTheme() {
             document.body.classList.toggle('light-theme');
             const isLight = document.body.classList.contains('light-theme');
@@ -403,10 +404,10 @@
                     
                     if (targetBucket.mult >= 1) {
                         alertBlock.classList.add('notification-win');
-                        alertBlock.innerHTML = 🎉 Выиграно: +${Math.floor(winAmount).toLocaleString('ru-RU')} ₽ (Коэффициент x${targetBucket.mult});
+                        alertBlock.innerHTML = `🎉 Выиграно: +${Math.floor(winAmount).toLocaleString('ru-RU')} ₽ (Коэффициент x${targetBucket.mult})`;
                     } else {
                         alertBlock.classList.add('notification-loss');
-                        alertBlock.innerHTML = 📉 Слив: минус ${Math.floor(b.bet - winAmount).toLocaleString('ru-RU')} ₽ (Коэффициент x${targetBucket.mult});
+                        alertBlock.innerHTML = `📉 Слив: минус ${Math.floor(b.bet - winAmount).toLocaleString('ru-RU')} ₽ (Коэффициент x${targetBucket.mult})`;
                     }
 
                     alertBlock.classList.add('show');
