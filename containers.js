@@ -597,7 +597,7 @@ function resetDropZoneClasses(dropZone) {
     dropZone.classList.remove('bg-drop-worst', 'bg-drop-loss', 'bg-drop-zero', 'bg-drop-profit', 'bg-drop-jackpot');
 }
 
-function openContainer(type) {
+window.openContainerLogic = function(type) {
     const container = containersData[type];
     if (!container) return;
 
