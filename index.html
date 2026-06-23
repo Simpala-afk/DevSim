@@ -5,6 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Симулятор Экономических Игр</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* ==========================================
+           ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ СИСТЕМЫ БИЗНЕСА
+           ========================================== */
+        .business-menu-grid {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0 0 0;
+            flex-wrap: wrap;
+        }
+        .business-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        .b-tab-btn {
+            background: var(--btn-secondary);
+            color: var(--text-color);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .b-tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        .business-category-section {
+            display: none;
+        }
+        .business-category-section.active {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .biz-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .biz-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .biz-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .biz-price {
+            font-size: 16px;
+            color: var(--success);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .biz-info {
+            font-size: 13px;
+            opacity: 0.8;
+            margin-bottom: 15px;
+            text-align: left;
+            line-height: 1.4;
+        }
+        .header-actions-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.15);
+            padding: 12px 20px;
+            border-radius: 8px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .empty-business-state {
+            text-align: center;
+            padding: 40px 20px;
+            background: var(--card-bg);
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+        }
+    </style>
 </head>
 <body class="dark-theme">
 
@@ -35,6 +126,21 @@
 
     <div class="app-container">
         <main class="game-area">
+
+            <section id="containers-entry-block" style="background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid var(--border-color);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                    <div>
+                        <h3 style="margin-bottom: 5px;">📦 Порт Контейнеров</h3>
+                        <p style="font-size: 14px; opacity: 0.8;">Испытайте удачу! Выбивайте премиум тачки, слоты Дубая/Италии и налоговые льготы.</p>
+                    </div>
+                    <a href="containers.html" class="btn btn-primary" style="text-decoration: none; padding: 12px 25px; font-weight: 600; border-radius: 6px;">Открыть Контейнеры 🚀</a>
+                </div>
+                
+                <div class="business-menu-grid">
+                    <button onclick="switchTab('game-buy-business', this)" class="btn btn-secondary" style="background: #3a3a4f; flex: 1; min-width: 160px; color: #fff;">🛒 Купить бизнес</button>
+                    <button onclick="switchTab('game-my-business', this)" class="btn btn-secondary" style="background: #2a4f3a; flex: 1; min-width: 160px; color: #fff;">💼 Мой бизнес</button>
+                </div>
+            </section>
             
             <section id="game-mines" class="game-section active">
                 <div class="game-wrapper">
@@ -52,8 +158,7 @@
                         <button id="mines-start-btn" class="btn btn-primary">Играть</button>
                     </div>
                     <div class="board-panel flex-column">
-                        <div class="mines-grid" id="mines-grid">
-                            </div>
+                        <div class="mines-grid" id="mines-grid"></div>
                         <div id="mines-status" class="game-status text-center" style="margin-top: 20px; font-weight: 600;">Установите ставку и начните игру</div>
                     </div>
                 </div>
@@ -141,7 +246,7 @@
                 <div class="game-wrapper">
                     <div class="controls-panel">
                         <h3>🎡 КОЛЕСО ФОРТУНЫ</h3>
-                        <p style="font-size: 14px; opacity: 0.8;">Запустите колесо удачи с разноцветными секторами. Множители делят вашу ставку от х0 до х5!</p>
+                        <p style="font-size: 14px; opacity: 0.8;">Запустице колесо удачи с разноцветными секторами. Множители делят вашу ставку от х0 до х5!</p>
                         <div style="margin-top: 15px; margin-bottom: 20px;">
                             <label style="font-size: 13px; font-weight:600;">Сумма вашей ставки:</label>
                             <input type="number" id="wheel-bet" value="10" min="1">
@@ -165,8 +270,7 @@
                     <div class="board-panel flex-column" style="background: none; padding: 0; min-height: auto; margin-bottom: 25px;">
                         <div class="roulette-carousel">
                             <div class="roulette-marker"></div>
-                            <div class="roulette-tape" id="roulette-container-tape">
-                                </div>
+                            <div class="roulette-tape" id="roulette-container-tape"></div>
                         </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px;">
@@ -201,34 +305,60 @@
             </section>
 
             <section id="game-plinko" class="game-section">
-    <div class="game-wrapper flex-column" style="align-items: center; text-align: center; padding: 40px 20px;">
-        <h3>🎲 ПЛИНКО (PLINKO)</h3>
-        <p style="font-size: 14px; opacity: 0.8; margin-bottom: 20px; max-width: 500px;">
-            Испытай удачу в культовой аркаде! Запускай шарики по пирамиде колышков и лови сумасшедшие множители до x10 прямо в лунках.
-        </p>
-        
-        <!-- Кнопка, которая откроет игру в новой вкладке -->
-        <a href="plinko.html" target="_blank" class="btn btn-primary" style="text-decoration: none; padding: 12px 30px; font-weight: 600; font-size: 16px; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px;">
-            Открыть игру в новом окне 🚀
-        </a>
-    </div>
-</section>
+                <div class="game-wrapper flex-column" style="align-items: center; text-align: center; padding: 40px 20px;">
+                    <h3>🎲 ПЛИНКО (PLINKO)</h3>
+                    <p style="font-size: 14px; opacity: 0.8; margin-bottom: 20px; max-width: 500px;">
+                        Испытай удачу в культовой аркаде! Запускай шарики по пирамиде колышков и лови сумасшедшие множители до x10 прямо в лунках.
+                    </p>
+                    <a href="plinko.html" target="_blank" class="btn btn-primary" style="text-decoration: none; padding: 12px 30px; font-weight: 600; font-size: 16px; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px;">
+                        Открыть игру в новом окне 🚀
+                    </a>
+                </div>
+            </section>
+
+            <section id="game-buy-business" class="game-section">
+                <div class="header-actions-panel">
+                    <button onclick="returnToMainDashboard()" class="btn btn-secondary">🏠 На главную</button>
+                    <h3 style="margin: 0; font-weight: 700;">🛒 Магазин предприятий</h3>
+                    <button onclick="toggleTheme()" class="btn btn-secondary">🌓 Сменить тему</button>
+                </div>
+
+                <div class="business-tabs">
+                    <button class="b-tab-btn active" onclick="switchBusinessMarketTab('cat-small', this)">📦 Малый бизнес</button>
+                    <button class="b-tab-btn" onclick="switchBusinessMarketTab('cat-medium', this)">🏢 Средний бизнес</button>
+                    <button class="b-tab-btn" onclick="switchBusinessMarketTab('cat-large', this)">💎 Крупный бизнес</button>
+                </div>
+
+                <div id="cat-small" class="business-category-section active"></div>
+                <div id="cat-medium" class="business-category-section"></div>
+                <div id="cat-large" class="business-category-section"></div>
+            </section>
+
+            <section id="game-my-business" class="game-section">
+                <div class="header-actions-panel">
+                    <button onclick="returnToMainDashboard()" class="btn btn-secondary">🏠 На главную</button>
+                    <h3 style="margin: 0; font-weight: 700;">💼 Управление бизнесом</h3>
+                    <button onclick="toggleTheme()" class="btn btn-secondary">🌓 Сменить тему</button>
+                </div>
+
+                <div id="my-business-content-area"></div>
+            </section>
+
         </main>
 
         <aside class="sidebar">
-    <button onclick="switchTab('game-mines', this)" class="nav-btn active">💣 Мины</button>
-    <button onclick="switchTab('game-crash', this)" class="nav-btn">📈 Краш</button>
-    <button onclick="switchTab('game-dice', this)" class="nav-btn">🎲 Дайс</button>
-    <button onclick="switchTab('game-coin', this)" class="nav-btn">🪙 Монетка</button>
-    <button onclick="switchTab('game-wheel', this)" class="nav-btn">🎡 Колесо</button>
-    <button onclick="switchTab('game-roulette', this)" class="nav-btn">🎨 Рулетка</button>
-    <button onclick="switchTab('game-slots', this)" class="nav-btn">🎰 Слоты</button>
-    <!-- ВОТ СЮДА ДОБАВЛЯЕМ КНОПКУ ДЛЯ ПЛИНКО -->
-    <button onclick="switchTab('game-plinko', this)" class="nav-btn">🎲 Плинко</button>
-    
-    <a href="containers.html" target="_blank" class="nav-btn" style="text-decoration: none; background: #ffa502; color: #fff; font-weight: bold;">📦 Контейнеры</a>
-    <div class="sidebar-disclaimer">Виртуальный симулятор. Не является азартной игрой. Реальных денег нет.</div>
-    </aside>
+            <button onclick="switchTab('game-mines', this)" class="nav-btn active">💣 Мины</button>
+            <button onclick="switchTab('game-crash', this)" class="nav-btn">📈 Краш</button>
+            <button onclick="switchTab('game-dice', this)" class="nav-btn">🎲 Дайс</button>
+            <button onclick="switchTab('game-coin', this)" class="nav-btn">🪙 Монетка</button>
+            <button onclick="switchTab('game-wheel', this)" class="nav-btn">🎡 Колесо</button>
+            <button onclick="switchTab('game-roulette', this)" class="nav-btn">🎨 Рулетка</button>
+            <button onclick="switchTab('game-slots', this)" class="nav-btn">🎰 Слоты</button>
+            <button onclick="switchTab('game-plinko', this)" class="nav-btn">🎲 Плинко</button>
+            
+            <a href="containers.html" target="_blank" class="nav-btn" style="text-decoration: none; background: #ffa502; color: #fff; font-weight: bold;">📦 Контейнеры</a>
+            <div class="sidebar-disclaimer">Виртуальный симулятор. Не является азартной игрой. Реальных денег нет.</div>
+        </aside>
     </div>
 
     <script src="script.js"></script>
