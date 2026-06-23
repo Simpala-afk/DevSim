@@ -855,12 +855,22 @@ function renderMarket() {
 }
 
 // Обработчик кнопки покупки бизнеса
-function buyBusinessClick(tier, bizId) {
-    const biz = businessDatabase[tier].find(b => b.id === bizId);
-    if (!biz) return;
+function buyBusiness(tier, id) {
+    const template = businessDatabase[tier].find(b => b.id === id);
+    if (!template) return;
 
-    if (balance < biz.cost) {
-        showNotification("Недостаточно денег для покупки этого бизнеса!", "danger");
+    // СТРОГАЯ ПРОВЕРКА КУПЛЕННЫХ В КОНТЕЙНЕРАХ СЛОТОВ
+    let slotsData = JSON.parse(localStorage.getItem('player_business_slots')) || { small: 0, medium: 0, large: 0 };
+    let currentSlots = slotsData[tier] || 0;
+    let activeInTier = myBusinesses.filter(b => b.tier === tier).length;
+
+    if (activeInTier >= currentSlots) {
+        showNotification(`У вас нет свободных слотов для категории "${tier === 'small' ? 'Малый' : tier === 'medium' ? 'Средний' : 'Крупный'}"! Выбивайте их в порту.`, "error");
+        return;
+    }
+
+    if (balance < template.cost) {
+        showNotification("Недостаточно средств!", "error");
         return;
     }
 
