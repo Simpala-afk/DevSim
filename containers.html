@@ -6,13 +6,23 @@
     <title>Контейнеры — Симулятор Игр</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Дополнительные стили специально для режима контейнеров */
+        .containers-section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 30px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .vip-title {
+            color: #ffca28;
+            border-bottom-color: #ffca28;
+        }
         .containers-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 25px;
             width: 100%;
-            margin-top: 20px;
+            margin-top: 10px;
         }
         .container-card {
             background-color: var(--card-bg);
@@ -25,9 +35,16 @@
             flex-direction: column;
             justify-content: space-between;
         }
+        .container-card.vip-card {
+            border: 1px solid #ffca28;
+            box-shadow: 0 0 10px rgba(255, 202, 40, 0.1);
+        }
         .container-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .container-card.vip-card:hover {
+            box-shadow: 0 8px 25px rgba(255, 202, 40, 0.25);
         }
         .container-img {
             width: 100%;
@@ -48,7 +65,26 @@
             font-weight: 600;
             margin-bottom: 15px;
         }
-        /* Стили для зоны анимации дропа */
+        .vip-price {
+            color: #ffca28;
+        }
+        .btn-vip {
+            background: #ffca28;
+            color: #000;
+            font-weight: bold;
+        }
+        .btn-vip:hover {
+            background: #ffe082;
+        }
+        .btn-secret {
+            background: #ffca28;
+            color: #000 !important;
+            font-weight: bold;
+            border: none;
+        }
+        .btn-secret:hover {
+            background: #ffe082;
+        }
         .drop-zone {
             width: 100%;
             background-color: var(--card-bg);
@@ -62,7 +98,16 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            transition: background-color 0.4s ease, border-color 0.4s ease;
         }
+        
+        /* Стили фонов для разных исходов дипломатических контейнеров */
+        .bg-drop-worst { background-color: #0c0c0c !important; border-color: #222 !important; color: #fff !important; }
+        .bg-drop-loss { background-color: #4a0d0d !important; border-color: #e53935 !important; color: #fff !important; }
+        .bg-drop-zero { background-color: #4a3b0d !important; border-color: #fb8c00 !important; color: #fff !important; }
+        .bg-drop-profit { background-color: #0d4a1a !important; border-color: #43a047 !important; color: #fff !important; }
+        .bg-drop-jackpot { background-color: #54440d !important; border-color: #ffb300 !important; color: #fff !important; }
+
         .win-card {
             animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
@@ -83,8 +128,9 @@
             font-size: 20px;
             font-weight: 600;
         }
-        .profit { color: var(--success); }
-        .loss { color: var(--danger); }
+        .profit { color: #81c784; }
+        .loss { color: #e57373; }
+        .text-jackpot { color: #ffd54f; }
 
         @keyframes popIn {
             0% { transform: scale(0.7); opacity: 0; }
@@ -115,6 +161,7 @@
             <p style="opacity: 0.6; margin-top: 10px; font-size: 16px;" id="drop-status">Купите контейнер, чтобы разгрузить его и забрать автомобиль</p>
         </div>
 
+        <div class="containers-section-title">Обычные контейнеры</div>
         <div class="containers-grid">
             
             <div class="container-card">
@@ -133,7 +180,7 @@
                     <div class="container-title">🇦🇪 Дубай</div>
                     <div class="container-price">20 000 ₽</div>
                 </div>
-               <button onclick="openContainer('dubai')" class="btn btn-primary" style="width: 100%;">Открыть</button>
+                <button onclick="openContainer('dubai')" class="btn btn-primary" style="width: 100%;">Открыть</button>
                 <button onclick="showContent('dubai')" class="btn btn-secondary" style="width: 100%; margin-top: 5px;">Состав</button>
             </div>
 
@@ -148,15 +195,51 @@
             </div>
 
         </div>
+
+        <div class="containers-section-title vip-title">👑 Дипломатические контейнеры</div>
+        <div class="containers-grid">
+            
+            <div class="container-card vip-card">
+                <div>
+                    <img src="images/dip_germany.png" alt="Дип. Германия" class="container-img" onerror="this.src='https://placehold.co/400x250/2a2a35/ffffff?text=Дип.+Германия'">
+                    <div class="container-title">💼 Дип. Германия</div>
+                    <div class="container-price vip-price">1 000 000 ₽</div>
+                </div>
+                <button onclick="openContainer('dip_germany')" class="btn btn-vip" style="width: 100%;">Открыть</button>
+                <button onclick="showSecretAlert()" class="btn btn-secondary btn-secret" style="width: 100%; margin-top: 5px;">Секрет</button>
+            </div>
+
+            <div class="container-card vip-card">
+                <div>
+                    <img src="images/dip_dubai.png" alt="Дип. Дубай" class="container-img" onerror="this.src='https://placehold.co/400x250/2a2a35/ffffff?text=Дип.+Дубай'">
+                    <div class="container-title">💼 Дип. Дубай</div>
+                    <div class="container-price vip-price">2 000 000 ₽</div>
+                </div>
+                <button onclick="openContainer('dip_dubai')" class="btn btn-vip" style="width: 100%;">Открыть</button>
+                <button onclick="showSecretAlert()" class="btn btn-secondary btn-secret" style="width: 100%; margin-top: 5px;">Секрет</button>
+            </div>
+
+            <div class="container-card vip-card">
+                <div>
+                    <img src="images/dip_italy.png" alt="Дип. Италия" class="container-img" onerror="this.src='https://placehold.co/400x250/2a2a35/ffffff?text=Дип.+Италия'">
+                    <div class="container-title">💼 Дип. Италия</div>
+                    <div class="container-price vip-price">5 000 000 ₽</div>
+                </div>
+                <button onclick="openContainer('dip_italy')" class="btn btn-vip" style="width: 100%;">Открыть</button>
+                <button onclick="showSecretAlert()" class="btn btn-secondary btn-secret" style="width: 100%; margin-top: 5px;">Секрет</button>
+            </div>
+
+        </div>
     </main>
 
     <script src="containers.js"></script>
+    
     <div id="content-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
-    <div style="background:var(--card-bg); padding:20px; border-radius:12px; max-width:400px; width:90%; max-height:80vh; overflow-y:auto; position:relative;">
-        <h3 id="modal-title" style="margin-top:0;">Состав контейнера</h3>
-        <ul id="modal-list" style="list-style:none; padding:0;"></ul>
-        <button onclick="document.getElementById('content-modal').style.display='none'" class="btn btn-secondary" style="width:100%; margin-top:10px;">Закрыть</button>
+        <div style="background:var(--card-bg); padding:20px; border-radius:12px; max-width:440px; width:90%; max-height:80vh; overflow-y:auto; position:relative;">
+            <h3 id="modal-title" style="margin-top:0;">Состав контейнера</h3>
+            <ul id="modal-list" style="list-style:none; padding:0; margin:0;"></ul>
+            <button onclick="document.getElementById('content-modal').style.display='none'" class="btn btn-secondary" style="width:100%; margin-top:15px;">Закрыть</button>
+        </div>
     </div>
-</div>
 </body>
 </html>
