@@ -894,7 +894,7 @@ function renderMarket() {
 
 // Обработчик кнопки покупки бизнеса
 function buyBusiness(tier, id) {
-    // 1. Ищем бизнес
+    // 1. Ищем бизнес в базе данных
     const bizData = businessDatabase[tier].find(b => b.id === id);
     if (!bizData) return;
 
@@ -904,20 +904,18 @@ function buyBusiness(tier, id) {
         return;
     }
 
-    // 3. ПРОВЕРКА СЛОТОВ (Тут мы объединяем твою логику и мою)
+    // 3. ПРОВЕРКА СЛОТОВ
     const myBusinesses = JSON.parse(localStorage.getItem('user_businesses')) || [];
     const activeInTier = myBusinesses.filter(b => b.tier === tier).length;
     
-    // Получаем слоты из твоего старого хранилища (player_business_slots) 
-    // ИЛИ из нового (won_business_slots), чтобы ничего не потерять
+    // Получаем слоты из старого и нового хранилищ
     let slotsData = JSON.parse(localStorage.getItem('player_business_slots')) || { small: 0, medium: 0, large: 0 };
     let wonSlots = JSON.parse(localStorage.getItem('won_business_slots')) || [];
     
-    // Преобразуем tier в ключ для слотов
+    // Приводим категории к общему знаменателю
     let tierKey = (tier === 'germany') ? 'small' : (tier === 'dubai') ? 'medium' : 'large';
     let slotType = (tier === 'germany') ? 'slot_germany' : (tier === 'dubai') ? 'slot_dubai' : 'slot_italy';
     
-    // Общее количество слотов = начальные (из slotsData) + выигранные (из wonSlots)
     let totalAllowed = (slotsData[tierKey] || 0) + wonSlots.filter(s => s === slotType).length;
 
     if (activeInTier >= totalAllowed) {
@@ -925,7 +923,7 @@ function buyBusiness(tier, id) {
         return;
     }
 
-    // 4. УСЛОВИЯ ПОСЛЕДОВАТЕЛЬНОСТИ (если они тебе нужны)
+    // 4. УСЛОВИЯ ПОСЛЕДОВАТЕЛЬНОСТИ
     if (tier === 'dubai' && !myBusinesses.some(b => b.tier === 'germany')) {
         showNotification("Ошибка! Сначала купите хотя бы один бизнес категории 'Германия'!", "danger");
         return;
@@ -935,7 +933,7 @@ function buyBusiness(tier, id) {
         return;
     }
 
-    // 5. Покупка
+    // 5. ПОКУПКА (Здесь исправлены все biz на bizData)
     balance -= bizData.cost;
     saveBalance();
 
@@ -943,7 +941,7 @@ function buyBusiness(tier, id) {
         id: bizData.id,
         name: bizData.name,
         tier: tier,
-        baseIncome: bizData.baseIncome || bizData.income, // Поддержка обоих вариантов имени поля
+        baseIncome: bizData.baseIncome || bizData.income || 0, 
         currentTax: bizData.tax || 10,
         storedProfit: 0,
         buyTimestamp: Date.now()
