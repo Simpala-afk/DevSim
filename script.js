@@ -161,7 +161,7 @@ const donateConfigs = {
     10: { cd: 10000, text: "+10 ₽ (Раз в 10 сек)", storageKey: "donate_limit_10" },
     100: { cd: 60000, text: "+100 ₽ (Раз в 1 мин)", storageKey: "donate_limit_100" },
     500: { cd: 3600000, text: "+500 ₽ (Раз в 1 час)", storageKey: "donate_limit_500" },
-    1000: { cd: 0, text: "+10000000 ₽ (Без КД)", storageKey: "donate_limit_10000000" } // Сделали без КД на кнопку, как ты просил
+    10000000: { cd: 0, text: "+10000000 ₽ (Без КД)", storageKey: "donate_limit_10000000" } // Сделали без КД на кнопку, как ты просил
 };
 
 // Функция запуска отсчета КД прямо на кнопке
