@@ -143,53 +143,38 @@
     <script src="containers.js"></script>
     
     <script>
-        function switchCategory(cat) {
-            document.querySelectorAll('.category-tab-btn').forEach(b => b.classList.remove('active'));
-            
-            const currentTab = document.getElementById(`tab-${cat}`);
-            if (currentTab) currentTab.classList.add('active');
+        // Рендерим контейнеры динамически из базы данных
+        for (const key in containersData) {
+            const data = containersData[key];
+            let targetGridId = 'grid-regular';
+            let cardClass = 'container-card';
+            let priceClass = 'container-price';
+            let btnClass = 'btn-primary';
 
-            const titleEl = document.getElementById('section-title');
-            const gridEl = document.getElementById('containers-grid-target');
-            
-            if (!titleEl || !gridEl) return;
-            gridEl.innerHTML = ''; 
-            
-            let keys = [];
-            if (cat === 'regular') {
-                titleEl.innerText = "Обычные контейнеры";
-                titleEl.className = "containers-section-title";
-                keys = ['germany', 'dubai', 'italy'];
-            } else if (cat === 'diplomatic') {
-                titleEl.innerText = "👑 Дипломатические контейнеры";
-                titleEl.className = "containers-section-title vip-title";
-                keys = ['dip_germany', 'dip_dubai', 'dip_italy'];
-            } else if (cat === 'special') {
-                titleEl.innerText = "🔥 Особые контейнеры";
-                titleEl.className = "containers-section-title special-title";
-                keys = ['special_germany', 'special_dubai', 'special_italy'];
-            } else if (cat === 'tax') {
-                titleEl.innerText = "📊 Налоговый контейнер";
-                titleEl.className = "containers-section-title tax-title";
-                keys = ['tax_container'];
+            if (data.isVip) {
+                targetGridId = 'grid-vip';
+                cardClass += ' vip-card';
+                priceClass += ' vip-price';
+                btnClass = 'btn-vip';
+            } else if (key.startsWith('special_')) {
+                targetGridId = 'grid-special';
+                cardClass += ' special-card';
+                priceClass += ' special-price';
+                btnClass = 'btn-special';
+            } else if (key === 'tax_container') {
+                targetGridId = 'grid-tax';
+                cardClass += ' tax-card';
+                priceClass += ' tax-price';
+                btnClass = 'btn-tax';
             }
 
-            keys.forEach(key => {
-                const data = containersData[key];
-                if (!data) return;
-
-                let cardClass = "container-card";
-                let btnClass = "btn btn-primary";
-                let priceClass = "container-price";
-                
-                if (cat === 'diplomatic') { cardClass += " vip-card"; btnClass = "btn-vip"; priceClass += " vip-price"; }
-                if (cat === 'special') { cardClass += " special-card"; btnClass = "btn-special"; priceClass += " special-price"; }
-                if (cat === 'tax') { cardClass += " tax-card"; btnClass = "btn-tax"; priceClass += " tax-price"; }
-
-                let imgPath = `images/${key}.png`;
-                if (key.startsWith('dip_')) imgPath = `images/${key.replace('dip_', '')}.png`;
-                if (key.startsWith('special_')) imgPath = `images/${key.replace('special_', '')}.png`;
-                if (key === 'tax_container') imgPath = `images/tax.png`;
+            const gridEl = document.getElementById(targetGridId);
+            if (gridEl) {
+                // ИСПРАВЛЕНО: Теперь пути ведут на правильные файлы картинок кейсов!
+                let imgPath = `images/${key}.png`; 
+                if (key === 'tax_container') {
+                    imgPath = `images/tax.png`;
+                }
 
                 const cardHtml = `
                     <div class="${cardClass}">
@@ -199,13 +184,13 @@
                             <div class="${priceClass}">${data.cost.toLocaleString('ru-RU')} ₽</div>
                         </div>
                         <div style="margin-top: 15px;">
-                            <button onclick="openContainer('${key}')" class="btn ${btnClass}" style="width: 100%;">Открыть</button>
-                            <button onclick="previewContainer('${key}')" class="btn btn-secondary" style="width: 100%; margin-top: 5px;">Состав</button>
+                            <button onclick="openContainer('${key}')" class=\"btn ${btnClass}\" style=\"width: 100%;\">Открыть</button>
+                            <button onclick="previewContainer('${key}')" class=\"btn btn-secondary\" style=\"width: 100%; margin-top: 5px;\">Состав</button>
                         </div>
                     </div>
                 `;
                 gridEl.innerHTML += cardHtml;
-            });
+            }
         }
 
         const originalOnload = window.onload;
