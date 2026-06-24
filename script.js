@@ -45,17 +45,25 @@ window.onload = function() {
     drawWheelInit();
     initRouletteCarousel();
 
+    // Восстанавливаем таймеры на кнопках доната
+    restoreDonateTimers();
+
     // ==========================================
-    // ИНИЦИАЛИЗАЦИЯ СИСТЕМЫ БИЗНЕСА
+    // ИНИЦИАЛИЗАЦИЯ СИСТЕМЫ БИЗНЕСА (Окончательная сборка)
     // ==========================================
+    // Сначала принудительно подгружаем массив из памяти, чтобы функции его точно увидели
+    myBusinesses = JSON.parse(localStorage.getItem('user_businesses')) || [];
+    
+    // Запускаем отрисовку рынка предприятий
     renderMarket();
-    renderMyBusinesses();
+    
+    // Запускаем отрисовку личных купленных бизнесов
+    if (typeof renderMyBusinesses === "function") {
+        renderMyBusinesses();
+    }
     
     // Запускаем таймер пассивной прибыли (каждые 10 секунд бизнесы копят деньги на склад)
     setInterval(processPassiveIncome, 10000);
-
-    // Восстанавливаем таймеры на кнопках доната при загрузке страницы, если они активны
-    restoreDonateTimers();
 };
 
 function saveBalance() {
