@@ -118,16 +118,30 @@
         </div>
 
         <div class="category-navigation">
-            <button class="category-tab-btn active" id="tab-regular" onclick="switchCategory('regular')">Обычные</button>
-            <button class="category-tab-btn" id="tab-diplomatic" onclick="switchCategory('diplomatic')">👑 Дипломатические</button>
-            <button class="category-tab-btn" id="tab-special" onclick="switchCategory('special')">🔥 Особые</button>
-            <button class="category-tab-btn" id="tab-tax" onclick="switchCategory('tax')">📊 Налоговый</button>
+            <button onclick="switchCategory('regular')" class="category-tab-btn active" id="tab-regular">📦 Обычные</button>
+            <button onclick="switchCategory('vip')" class="category-tab-btn" id="tab-diplomatic">👑 Дипломатические</button>
+            <button onclick="switchCategory('special')" class="category-tab-btn" id="tab-special">🔥 Особые</button>
+            <button onclick="switchCategory('tax')" class="category-tab-btn" id="tab-tax">📈 Налоговый</button>
         </div>
 
-        <div id="containers-display-zone">
-            <div class="containers-section-title" id="section-title">Обычные контейнеры</div>
-            <div class="containers-grid" id="containers-grid-target">
-                </div>
+        <div id="section-regular" class="container-section">
+            <div class="containers-section-title">📦 Обычные контейнеры</div>
+            <div class="containers-grid" id="grid-regular"></div>
+        </div>
+
+        <div id="section-vip" class="container-section" style="display: none;">
+            <div class="containers-section-title vip-title">👑 Дипломатические контейнеры</div>
+            <div class="containers-grid" id="grid-vip"></div>
+        </div>
+
+        <div id="section-special" class="container-section" style="display: none;">
+            <div class="containers-section-title special-title">🔥 Особые контейнеры</div>
+            <div class="containers-grid" id="grid-special"></div>
+        </div>
+
+        <div id="section-tax" class="container-section" style="display: none;">
+            <div class="containers-section-title tax-title">📈 Налоговый контейнер</div>
+            <div class="containers-grid" id="grid-tax"></div>
         </div>
 
     </main>
@@ -151,6 +165,7 @@
             let priceClass = 'container-price';
             let btnClass = 'btn-primary';
 
+            // Проверяем категорию контейнера
             if (data.isVip) {
                 targetGridId = 'grid-vip';
                 cardClass += ' vip-card';
@@ -170,7 +185,7 @@
 
             const gridEl = document.getElementById(targetGridId);
             if (gridEl) {
-                // ИСПРАВЛЕНО: Теперь пути ведут на правильные файлы картинок кейсов!
+                // Пути к картинкам кейсов
                 let imgPath = `images/${key}.png`; 
                 if (key === 'tax_container') {
                     imgPath = `images/tax.png`;
@@ -184,8 +199,8 @@
                             <div class="${priceClass}">${data.cost.toLocaleString('ru-RU')} ₽</div>
                         </div>
                         <div style="margin-top: 15px;">
-                            <button onclick="openContainer('${key}')" class=\"btn ${btnClass}\" style=\"width: 100%;\">Открыть</button>
-                            <button onclick="previewContainer('${key}')" class=\"btn btn-secondary\" style=\"width: 100%; margin-top: 5px;\">Состав</button>
+                            <button onclick="openContainer('${key}')" class="btn ${btnClass}" style="width: 100%;">Открыть</button>
+                            <button onclick="previewContainer('${key}')" class="btn btn-secondary" style="width: 100%; margin-top: 5px;">Состав</button>
                         </div>
                     </div>
                 `;
@@ -193,11 +208,10 @@
             }
         }
 
-        const originalOnload = window.onload;
-        window.onload = function() {
-            if (originalOnload) originalOnload();
+        // Правильная инициализация после загрузки окна
+        window.addEventListener('load', function() {
             switchCategory('regular');
-        };
+        });
     </script>
 </body>
 </html>
