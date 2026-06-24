@@ -854,13 +854,23 @@ function returnToMainDashboard() {
 // Генерация карточек товаров в Магазине Бизнесов
 // Функция отрисовки доступного для покупки бизнеса на Рынке
 function renderMarket() {
-    const marketArea = document.getElementById('business-market-area');
-    if (!marketArea) return;
+    // Находим три твоих реальных контейнера из index.html
+    const catSmall = document.getElementById('cat-small');
+    const catMedium = document.getElementById('cat-medium');
+    const catLarge = document.getElementById('cat-large');
 
-    // Читаем купленные бизнесы напрямую из памяти
+    // Если хоть одного нет на странице, прерываем выполнение
+    if (!catSmall || !catMedium || !catLarge) return;
+
+    // Очищаем вкладки перед новой отрисовкой
+    catSmall.innerHTML = '';
+    catMedium.innerHTML = '';
+    catLarge.innerHTML = '';
+
+    // Безопасно загружаем данные
     const localBusinesses = JSON.parse(localStorage.getItem('user_businesses')) || [];
 
-    // 1. Считаем, сколько бизнесов куплено по категориям (small, medium, large)
+    // 1. Считаем, сколько бизнесов куплено по категориям
     const countOwned = {
         small: localBusinesses.filter(b => b.tier === 'small').length,
         medium: localBusinesses.filter(b => b.tier === 'medium').length,
@@ -885,10 +895,10 @@ function renderMarket() {
         large: (slotsData.large || 0) + countBonusSlots.large
     };
 
-    // Строим сетку рынка
-    let html = `<div class="business-menu-grid">`;
-    
+    // Генерируем карточки для каждой категории из базы данных
     for (let tier in businessDatabase) {
+        let tierHtml = '';
+
         businessDatabase[tier].forEach(biz => {
             const hasFreeSlot = countOwned[tier] < totalSlots[tier];
             const hasEnoughMoney = balance >= biz.cost;
@@ -903,23 +913,28 @@ function renderMarket() {
                 btnText = `Недостаточно средств (${biz.cost.toLocaleString('ru-RU')} ₽)`;
             }
 
-            html += `
-                <div class="market-biz-card tier-${tier}" style="background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; flex: 1 1 280px; text-align: center;">
-                    <h4 style="margin: 0 0 10px 0; font-size: 18px; font-weight: 700;">${biz.name}</h4>
-                    <p style="margin: 5px 0; opacity: 0.8;">Категория: ${tier === 'small' ? 'Малый' : tier === 'medium' ? 'Средний' : 'Крупный'}</p>
-                    <p style="margin: 5px 0; color: #2ecc71; font-weight: 600;">Стоимость: ${biz.cost.toLocaleString('ru-RU')} ₽</p>
-                    <p style="margin: 5px 0; opacity: 0.9;">Доход: +${(biz.income || 0).toLocaleString('ru-RU')} ₽ / 10 сек</p>
-                    <p style="font-size: 13px; opacity: 0.6; margin-top: 10px;">Слоты: ${countOwned[tier]} / ${totalSlots[tier]}</p>
-                    <button onclick="buyBusiness('${tier}', '${biz.id}')" class="btn btn-primary" style="width: 100%; margin-top: 10px;" ${btnDisabled}>
+            // Используем твои CSS классы из стилей: biz-card, biz-title, biz-price, biz-info
+            tierHtml += `
+                <div class="biz-card tier-${tier}">
+                    <div class="biz-title">${biz.name}</div>
+                    <div class="biz-price">${biz.cost.toLocaleString('ru-RU')} ₽</div>
+                    <div class="biz-info">
+                        <strong>Доход:</strong> +${(biz.income || biz.baseIncome || 0).toLocaleString('ru-RU')} ₽ / 10 сек<br>
+                        <strong>Налог:</strong> базовый<br>
+                        <strong>Слоты категории:</strong> ${countOwned[tier]} / ${totalSlots[tier]}
+                    </div>
+                    <button onclick="buyBusiness('${tier}', '${biz.id}')" class="btn btn-primary" style="width: 100%;" ${btnDisabled}>
                         ${btnText}
                     </button>
                 </div>
             `;
         });
+
+        // Раскладываем сгенерированный HTML по соответствующим вкладкам
+        if (tier === 'small') catSmall.innerHTML = tierHtml;
+        if (tier === 'medium') catMedium.innerHTML = tierHtml;
+        if (tier === 'large') catLarge.innerHTML = tierHtml;
     }
-    
-    html += `</div>`;
-    marketArea.innerHTML = html;
 }
 
 // Обработчик кнопки покупки бизнеса
