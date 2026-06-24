@@ -69,19 +69,43 @@ function updateBalanceDisplay() {
 }
 
 // Переключение вкладок главной страницы
-function switchTab(tabId, btn) {
-    document.querySelectorAll('.game-section').forEach(s => s.classList.remove('active'));
-    let targetSection = document.getElementById(tabId);
-    if (targetSection) targetSection.classList.add('active');
-
-    document.querySelectorAll('.sidebar .nav-btn').forEach(b => b.classList.remove('active'));
-    if (btn && btn.classList.contains('nav-btn')) {
-        btn.classList.add('active');
+function switchTab(tabId, button) {
+    // Скрываем все вкладки
+    document.querySelectorAll('.game-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Убираем активный класс со всех кнопок
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Показываем нужную вкладку
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) {
+        targetTab.classList.add('active');
     }
-
-    // Если перешли в "Мой бизнес", сразу обновляем состояние складов
-    if (tabId === 'game-my-business') {
-        renderMyBusinesses();
+    
+    // Делаем кнопку активной
+    if (button) {
+        button.classList.add('active');
+    }
+    
+    // ОСТАНОВКА ИГР ПРИ ПЕРЕКЛЮЧЕНИИ (твой стандартный код)
+    if (tabId !== 'game-crash' && crashState.running) {
+        clearInterval(crashInterval);
+        crashState.running = false;
+        document.getElementById('crash-btn').innerText = 'Поставить';
+        document.getElementById('crash-btn').disabled = false;
+    }
+    
+    // КРИТИЧЕСКИ ВАЖНОЕ ОБНОВЛЕНИЕ ДЛЯ БИЗНЕСА:
+    // Если игрок нажал на вкладку бизнеса, принудительно отрисовываем рынок и его бизнесы
+    if (tabId === 'section-business') {
+        renderMarket();
+        if (typeof renderMyBusinesses === 'function') {
+            renderMyBusinesses();
+        }
     }
 }
 
@@ -825,17 +849,17 @@ function renderMarket() {
     const marketArea = document.getElementById('business-market-area');
     if (!marketArea) return;
 
-    // Безопасно получаем или объявляем массив купленных бизнесов игрока
-    const currentBusinesses = (typeof myBusinesses !== 'undefined' ? myBusinesses : []) || JSON.parse(localStorage.getItem('user_businesses')) || [];
+    // Читаем купленные бизнесы напрямую из памяти
+    const localBusinesses = JSON.parse(localStorage.getItem('user_businesses')) || [];
 
-    // 1. Считаем, сколько бизнесов КАЖДОГО ТИПА у игрока уже куплено (используем твои ключи из БД: small, medium, large)
+    // 1. Считаем, сколько бизнесов куплено по категориям (small, medium, large)
     const countOwned = {
-        small: currentBusinesses.filter(b => b.tier === 'small').length,
-        medium: currentBusinesses.filter(b => b.tier === 'medium').length,
-        large: currentBusinesses.filter(b => b.tier === 'large').length
+        small: localBusinesses.filter(b => b.tier === 'small').length,
+        medium: localBusinesses.filter(b => b.tier === 'medium').length,
+        large: localBusinesses.filter(b => b.tier === 'large').length
     };
 
-    // 2. Считаем, сколько СЛОТОВ выиграно из особых контейнеров в порту
+    // 2. Считаем выигранные слоты в порту
     const wonSlots = JSON.parse(localStorage.getItem('won_business_slots')) || [];
     const countBonusSlots = {
         small: wonSlots.filter(s => s === 'slot_germany').length,
@@ -843,23 +867,21 @@ function renderMarket() {
         large: wonSlots.filter(s => s === 'slot_italy').length
     };
 
-    // 3. Получаем базовые слоты (если они есть в player_business_slots)
+    // 3. Получаем базовые слоты
     let slotsData = JSON.parse(localStorage.getItem('player_business_slots')) || { small: 0, medium: 0, large: 0 };
 
-    // 4. Итого доступно слотов = Базовые из игры + Выигранные в контейнерах
+    // 4. Итого доступно слотов
     const totalSlots = {
         small: (slotsData.small || 0) + countBonusSlots.small,
         medium: (slotsData.medium || 0) + countBonusSlots.medium,
         large: (slotsData.large || 0) + countBonusSlots.large
     };
 
-    // Генерируем HTML рынка по твоим стилям (business-menu-grid)
+    // Строим сетку рынка
     let html = `<div class="business-menu-grid">`;
     
-    // Перебираем категории из твоей реальной базы данных
     for (let tier in businessDatabase) {
         businessDatabase[tier].forEach(biz => {
-            // Проверяем свободные слоты и баланс
             const hasFreeSlot = countOwned[tier] < totalSlots[tier];
             const hasEnoughMoney = balance >= biz.cost;
 
@@ -867,20 +889,18 @@ function renderMarket() {
             let btnDisabled = "";
 
             if (!hasFreeSlot) {
-                btnText = "Нет свободных слотов (выбивайте в порту)";
+                btnText = "Нет свободных слотов (выбейте в порту)";
                 btnDisabled = "disabled style='background: #57606f; cursor: not-allowed; opacity: 0.6;'";
             } else if (!hasEnoughMoney) {
                 btnText = `Недостаточно средств (${biz.cost.toLocaleString('ru-RU')} ₽)`;
-                // Оставляем кнопку кликабельной, чтобы при нажатии вылетало уведомление из buyBusiness
             }
 
-            // Рендерим карточку, подтягивая правильные названия полей из твоей структуры (biz.income, biz.cost)
             html += `
                 <div class="market-biz-card tier-${tier}" style="background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; flex: 1 1 280px; text-align: center;">
                     <h4 style="margin: 0 0 10px 0; font-size: 18px; font-weight: 700;">${biz.name}</h4>
                     <p style="margin: 5px 0; opacity: 0.8;">Категория: ${tier === 'small' ? 'Малый' : tier === 'medium' ? 'Средний' : 'Крупный'}</p>
                     <p style="margin: 5px 0; color: #2ecc71; font-weight: 600;">Стоимость: ${biz.cost.toLocaleString('ru-RU')} ₽</p>
-                    <p style="margin: 5px 0; opacity: 0.9;">Доход: +${(biz.income || biz.baseIncome || 0).toLocaleString('ru-RU')} ₽ / 10 сек</p>
+                    <p style="margin: 5px 0; opacity: 0.9;">Доход: +${(biz.income || 0).toLocaleString('ru-RU')} ₽ / 10 сек</p>
                     <p style="font-size: 13px; opacity: 0.6; margin-top: 10px;">Слоты: ${countOwned[tier]} / ${totalSlots[tier]}</p>
                     <button onclick="buyBusiness('${tier}', '${biz.id}')" class="btn btn-primary" style="width: 100%; margin-top: 10px;" ${btnDisabled}>
                         ${btnText}
