@@ -196,13 +196,13 @@ function openContainer(type) {
         let resultText = "";
         let resultClass = "";
 
-        // 1. Механика Налогового Бонуса
+        // 1. Механика Налогового Бонуса (ОБНОВЛЕНО ПОД ОЧЕРЕДЬ)
         if (item.type === "tax_bonus") {
             resultText = `ВЫБИТ НАЛОГ: ${item.value}% (${item.label})!`;
             resultClass = item.value <= 8 ? "text-success" : "text-danger";
             
-            localStorage.setItem('pending_tax_coupon', item.value.toString());
-            showNotification(`🔥 Налоговый контейнер: Выпал налог ${item.value}%! Примените в управлении бизнесом.`, item.value <= 8 ? "success" : "info");
+            // Вызываем правильное добавление в конец инвентаря
+            rewardTaxDrop(item.value);
             
         // 2. Механика Выпадения Бизнес-Слота
         } else if (item.type && item.type.startsWith("slot_")) {
@@ -321,4 +321,12 @@ function toggleTheme() {
     currentTheme = (currentTheme === 'dark') ? 'light' : 'dark';
     localStorage.setItem('theme', currentTheme);
     document.body.className = currentTheme + '-theme';
+}
+
+// Вспомогательная функция для синхронизации очереди с инвентарем
+function rewardTaxDrop(taxPercent) {
+    let taxInventory = JSON.parse(localStorage.getItem('tax_inventory')) || [];
+    taxInventory.push(taxPercent); // Пушим строго в КОНЕЦ очереди
+    localStorage.setItem('tax_inventory', JSON.stringify(taxInventory));
+    showNotification(`Дроп сохранен! Налог ${taxPercent}% добавлен в очередь инвентаря.`, "success");
 }
