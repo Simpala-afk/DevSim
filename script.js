@@ -1000,7 +1000,7 @@ function buyBusiness(tier, id) {
         }
     }
 
-    // 6. Списание денег и добавление бизнеса (Исправлены все biz на template)
+    // 6. Списание денег и добавление бизнеса
     balance -= template.cost;
     saveBalance();
 
@@ -1021,7 +1021,7 @@ function buyBusiness(tier, id) {
     renderMyBusinesses();
 }
 
-// Генерация интерфейса вкладки "Мой Бизнес"
+// ПОЛНОСТЬЮ ОБНОВЛЕННАЯ ГЕНЕРАЦИЯ ИНТЕРФЕЙСА ВКЛАДКИ "МОЙ БИЗНЕС" С ИНВЕНТАРЕМ НАЛОГОВ
 function renderMyBusinesses() {
     const container = document.getElementById('my-business-content-area');
     if (!container) return;
@@ -1029,7 +1029,7 @@ function renderMyBusinesses() {
     if (myBusinesses.length === 0) {
         container.innerHTML = `
             <div class="empty-business-state">
-                <h2>💼 У вас пока нет active бизнеса</h2>
+                <h2>💼 У вас пока нет активного бизнеса</h2>
                 <p style="margin: 15px 0; opacity: 0.8;">Бизнес приносит колоссальную пассивную прибыль. Выбивайте скидки на налоги в портах контейнеров, чтобы зарабатывать ещё больше!</p>
                 <button onclick="switchTab('game-buy-business')" class="btn btn-primary" style="padding: 12px 30px;">Перейти в магазин бизнесов 🛒</button>
             </div>
@@ -1037,25 +1037,66 @@ function renderMyBusinesses() {
         return;
     }
 
-    let html = `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">`;
+    // Загружаем инвентарь налогов, чтобы показать игроку красивую ленту очереди дропа
+    const taxInventory = JSON.parse(localStorage.getItem('tax_inventory')) || [];
+
+    let html = `
+        <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-color); text-align: left;">
+            📊 <strong>Налоговый инвентарь (Очередь применения):</strong> 
+            <span style="color: var(--warning); font-weight: bold;">[ ${taxInventory.map(t => t + '%').join(' ← ') || 'Очередь пуста'} ]</span>
+            <br><small style="opacity: 0.6; display: block; margin-top: 5px;">*Вы можете применить только самый левый налог (который выпал раньше всех). После применения он исчезает.</small>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+    `;
     
     myBusinesses.forEach((biz, index) => {
+        // Защита: если у бизнеса в объекте нет текущего налога, ставим базовый
+        if (biz.currentTax === undefined) {
+            biz.currentTax = 25; 
+        }
+
         const cleanIncome = biz.baseIncome * (1 - (biz.currentTax / 100));
 
+        // Вычисляем кулдаун на смену налога (1 день = 86400000 мс)
+        const now = Date.now();
+        const lastTaxChange = biz.lastTaxChangeTime || 0;
+        const msPassed = now - lastTaxChange;
+        const oneDayInMs = 24 * 60 * 60 * 1000;
+        const hasCooldown = msPassed < oneDayInMs;
+
+        let cooldownText = "";
+        let btnDisabled = "";
+
+        if (hasCooldown) {
+            const msLeft = oneDayInMs - msPassed;
+            const hoursLeft = Math.floor(msLeft / (1000 * 60 * 60));
+            const minsLeft = Math.floor((msLeft % (1000 * 60 * 60)) / (1000 * 60));
+            cooldownText = `<span style="color: #ff4757; font-size: 12px; font-weight: bold; text-align: center; display: block; margin-top: 2px;">⏳ Смена через: ${hoursLeft}ч ${minsLeft}м</span>`;
+            btnDisabled = "disabled style='background: #57606f; cursor: not-allowed; opacity: 0.6;'";
+        } else if (taxInventory.length === 0) {
+            btnDisabled = "disabled style='background: #57606f; cursor: not-allowed; opacity: 0.6;'";
+        }
+
         html += `
-            <div class="biz-card" style="text-align: left;">
+            <div class="biz-card" style="text-align: left; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                     <div class="biz-title" style="font-size: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">💼 ${biz.name}</div>
                     <div style="font-size: 14px; margin: 15px 0; line-height: 1.6;">
                         • Базовая прибыль: <span style="color:var(--warning); font-weight:bold;">+${biz.baseIncome.toLocaleString('ru-RU')} ₽</span><br>
-                        • Налоговая ставка: <span style="color:#ff4757; font-weight:bold;">${biz.currentTax}%</span><br>
+                        • Налоговая ставка: <span style="color:${biz.currentTax === 0 ? '#2ecc71' : '#ff4757'}; font-weight:bold;">${biz.currentTax}%</span><br>
                         • Чистый доход (за налог): <span style="color:var(--success); font-weight:bold;">+${Math.floor(cleanIncome).toLocaleString('ru-RU')} ₽</span><br>
                         • Накоплено на складе: <span style="color:#5352ed; font-weight:bold; font-size:16px;">${Math.floor(biz.storedProfit).toLocaleString('ru-RU')} ₽</span>
                     </div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
                     <button class="btn btn-success" style="width:100%;" onclick="collectProfit(${index})" ${biz.storedProfit <= 0 ? 'disabled' : ''}>💰 Собрать прибыль</button>
-                    <button class="btn btn-danger" style="width:100%; background:#ff4757; opacity:0.9;" onclick="sellBusiness(${index})">Продать за 50%</button>
+                    
+                    <button class="btn btn-warning" style="width:100%; font-weight: bold;" onclick="applyNextTax(${index})" ${btnDisabled}>
+                        📉 Применить налог (${taxInventory.length > 0 ? taxInventory[0] + '%' : 'инвентарь пуст'})
+                    </button>
+                    ${cooldownText}
+                    
+                    <button class="btn btn-danger" style="width:100%; background:#ff4757; opacity:0.9; margin-top: 5px;" onclick="sellBusiness(${index})">Продать за 50%</button>
                 </div>
             </div>
         `;
@@ -1063,6 +1104,61 @@ function renderMyBusinesses() {
 
     html += `</div>`;
     container.innerHTML = html;
+}
+
+// ФУНКЦИЯ ДЛЯ ПРИМЕНЕНИЯ ОЧЕРЕДНОГО НАЛОГА ИЗ ИНВЕНТАРЯ С УЧЕТОМ КД
+function applyNextTax(index) {
+    const biz = myBusinesses[index];
+    if (!biz) return;
+
+    // 1. Проверяем суточный кулдаун
+    const now = Date.now();
+    const lastTaxChange = biz.lastTaxChangeTime || 0;
+    const oneDayInMs = 24 * 60 * 60 * 1000;
+
+    if (now - lastTaxChange < oneDayInMs) {
+        showNotification("Изменять налог на этом бизнесе можно только 1 раз в день!", "danger");
+        return;
+    }
+
+    // 2. Проверяем, есть ли налоги в инвентаре
+    let taxInventory = JSON.parse(localStorage.getItem('tax_inventory')) || [];
+    if (taxInventory.length === 0) {
+        showNotification("У вас нет сохраненных налогов в инвентаре!", "danger");
+        return;
+    }
+
+    // 3. Достаем самый первый (старый) налог из очереди (вырезаем элемент с индексом 0)
+    const appliedTax = taxInventory.shift(); 
+
+    // 4. Мутируем параметры бизнеса
+    biz.currentTax = appliedTax;
+    biz.lastTaxChangeTime = now; // Фиксируем время для КД
+
+    // 5. Записываем изменения в LocalStorage
+    localStorage.setItem('tax_inventory', JSON.stringify(taxInventory));
+    localStorage.setItem('user_businesses', JSON.stringify(myBusinesses));
+
+    // 6. Обновляем интерфейс и выдаем уведомление
+    showNotification(`Налог ${appliedTax}% успешно активирован для "${biz.name}"!`, "success");
+    renderMyBusinesses();
+}
+
+// ФУНКЦИЯ ДОБАВЛЕНИЯ НАЛОГА В ИНВЕНТАРЬ ПРИ ВЫИГРЫШЕ (Вызывать в коде контейнеров)
+function rewardTaxDrop(taxPercent) {
+    let taxInventory = JSON.parse(localStorage.getItem('tax_inventory')) || [];
+    
+    // Вставляем новый дроп строго в КОНЕЦ очереди
+    taxInventory.push(taxPercent);
+    
+    localStorage.setItem('tax_inventory', JSON.stringify(taxInventory));
+    showNotification(`Дроп сохранен! Налог ${taxPercent}% добавлен в очередь инвентаря.`, "success");
+    
+    // Если открыта вкладка управления бизнесом, сразу перерисуем ленту очереди
+    let targetSection = document.getElementById('game-my-business');
+    if (targetSection && targetSection.classList.contains('active')) {
+        renderMyBusinesses();
+    }
 }
 
 // Функция сбора накопленной прибыли со склада
@@ -1082,7 +1178,7 @@ function collectProfit(index) {
 // Функция продажи за 50% стоимости
 function sellBusiness(index) {
     const biz = myBusinesses[index];
-    if (!biz) return; // Опечатка полностью исправлена здесь!
+    if (!biz) return; 
 
     const dbBiz = businessDatabase[biz.tier].find(b => b.id === biz.id);
     const returnMoney = dbBiz ? dbBiz.cost / 2 : 0;
@@ -1104,6 +1200,9 @@ function processPassiveIncome() {
     if (myBusinesses.length === 0) return;
 
     myBusinesses.forEach(biz => {
+        // Если налога нет в сохраненном объекте — берем дефолтный 25%
+        if (biz.currentTax === undefined) biz.currentTax = 25;
+        
         const cleanIncome = biz.baseIncome * (1 - (biz.currentTax / 100));
         biz.storedProfit += cleanIncome;
     });
