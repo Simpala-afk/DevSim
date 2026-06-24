@@ -894,64 +894,86 @@ function renderMarket() {
 
 // Обработчик кнопки покупки бизнеса
 function buyBusiness(tier, id) {
-    // 1. Ищем бизнес в базе данных
-    const bizData = businessDatabase[tier].find(b => b.id === id);
-    if (!bizData) return;
-
-    // 2. Проверяем баланс
-    if (balance < bizData.cost) {
-        showNotification(`Недостаточно денег! Нужно ${bizData.cost.toLocaleString('ru-RU')} ₽`, "error");
+    // 1. Ищем бизнес в базе данных по правильному тиру (small, medium, large)
+    const template = businessDatabase[tier] ? businessDatabase[tier].find(b => b.id === id) : null;
+    if (!template) {
+        console.error(`Бизнес с id ${id} в категории ${tier} не найден!`);
         return;
     }
 
-    // 3. ПРОВЕРКА СЛОТОВ
-    const myBusinesses = JSON.parse(localStorage.getItem('user_businesses')) || [];
-    const activeInTier = myBusinesses.filter(b => b.tier === tier).length;
-    
-    // Получаем слоты из старого и нового хранилищ
+    // 2. ПРОВЕРКА КУПЛЕННЫХ В КОНТЕЙНЕРАХ СЛОТОВ
     let slotsData = JSON.parse(localStorage.getItem('player_business_slots')) || { small: 0, medium: 0, large: 0 };
     let wonSlots = JSON.parse(localStorage.getItem('won_business_slots')) || [];
     
-    // Приводим категории к общему знаменателю
-    let tierKey = (tier === 'germany') ? 'small' : (tier === 'dubai') ? 'medium' : 'large';
-    let slotType = (tier === 'germany') ? 'slot_germany' : (tier === 'dubai') ? 'slot_dubai' : 'slot_italy';
-    
-    let totalAllowed = (slotsData[tierKey] || 0) + wonSlots.filter(s => s === slotType).length;
+    // Связываем категории рынка с типами слотов из контейнеров
+    let slotType = "slot_germany";
+    if (tier === "medium") slotType = "slot_dubai";
+    if (tier === "large") slotType = "slot_italy";
 
-    if (activeInTier >= totalAllowed) {
-        showNotification(`Нет свободных слотов для категории "${tier}"! Выбейте их в порту.`, "error");
+    // Общее количество доступных слотов = базовые + выигранные в порту
+    let currentSlots = (slotsData[tier] || 0) + wonSlots.filter(s => s === slotType).length;
+    let activeInTier = myBusinesses.filter(b => b.tier === tier).length;
+
+    if (activeInTier >= currentSlots) {
+        showNotification(`У вас нет свободных слотов для категории "${tier === 'small' ? 'Малый' : tier === 'medium' ? 'Средний' : 'Крупный'}"! Выбивайте их в порту.`, "error");
         return;
     }
 
-    // 4. УСЛОВИЯ ПОСЛЕДОВАТЕЛЬНОСТИ
-    if (tier === 'dubai' && !myBusinesses.some(b => b.tier === 'germany')) {
-        showNotification("Ошибка! Сначала купите хотя бы один бизнес категории 'Германия'!", "danger");
-        return;
-    }
-    if (tier === 'italy' && !myBusinesses.some(b => b.tier === 'dubai')) {
-        showNotification("Ошибка! Сначала купите бизнес категории 'Дубай'!", "danger");
+    // 3. Проверяем баланс игрока
+    if (balance < template.cost) {
+        showNotification("Недостаточно средств!", "error");
         return;
     }
 
-    // 5. ПОКУПКА (Здесь исправлены все biz на bizData)
-    balance -= bizData.cost;
+    // 4. Условия последовательности для СРЕДНЕГО бизнеса
+    if (tier === 'medium') {
+        const hasSmall = myBusinesses.some(b => b.tier === 'small');
+        const hasDubaiSlot = localStorage.getItem('slot_dubai') === 'true' || wonSlots.includes('slot_dubai');
+        
+        if (!hasSmall) {
+            showNotification("Ошибка! Сначала нужно купить хотя бы один Малый бизнес!", "danger");
+            return;
+        }
+        if (!hasDubaiSlot) {
+            showNotification("Ошибка! Нужен открытый Слот из Дубая (выбивается в контейнерах)!", "danger");
+            return;
+        }
+    }
+
+    // 5. Условия последовательности для КРУПНОГО бизнеса
+    if (tier === 'large') {
+        const hasMedium = myBusinesses.some(b => b.tier === 'medium');
+        const hasItalySlot = localStorage.getItem('slot_italy') === 'true' || wonSlots.includes('slot_italy');
+        
+        if (!hasMedium) {
+            showNotification("Ошибка! Сначала нужно купить хотя бы один Средний бизнес!", "danger");
+            return;
+        }
+        if (!hasItalySlot) {
+            showNotification("Ошибка! Нужен открытый Слот из Италии (выбивается в контейнерах)!", "danger");
+            return;
+        }
+    }
+
+    // 6. Списание денег и добавление бизнеса (Исправлены все biz на template)
+    balance -= template.cost;
     saveBalance();
 
     myBusinesses.push({
-        id: bizData.id,
-        name: bizData.name,
+        id: template.id,
+        name: template.name,
         tier: tier,
-        baseIncome: bizData.baseIncome || bizData.income || 0, 
-        currentTax: bizData.tax || 10,
+        baseIncome: template.income || template.baseIncome || 0,
+        currentTax: template.tax || 10,
         storedProfit: 0,
         buyTimestamp: Date.now()
     });
 
     localStorage.setItem('user_businesses', JSON.stringify(myBusinesses));
-    showNotification(`Поздравляем! Вы купили: "${bizData.name}"`, "success");
-
+    showNotification(`Поздравляем! Вы купили предприятие: "${template.name}"`, "success");
+    
     renderMarket();
-    if (typeof renderMyBusinesses === "function") renderMyBusinesses();
+    renderMyBusinesses();
 }
 
 // Генерация интерфейса вкладки "Мой Бизнес"
