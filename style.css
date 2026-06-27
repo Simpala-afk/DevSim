@@ -79,7 +79,7 @@ body {
 .app-container {
     display: flex;
     flex: 1;
-    flex-direction: row; /* Направление элементов в строчку */
+    flex-direction: row;
 }
 
 /* Игровая зона слева */
@@ -97,16 +97,16 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    border-left: 1px solid var(--border-color); /* Бордюр слева от меню */
+    border-left: 1px solid var(--border-color);
 }
 .sidebar-disclaimer {
-    margin-top: auto; /* Автоматически прижмет текст к самому низу меню */
+    margin-top: auto;
     font-size: 11px;
-    opacity: 0.35; /* Сделает текст полупрозрачным, чтоб не отвлекал */
+    opacity: 0.35;
     text-align: center;
     padding: 15px 5px 5px 5px;
     line-height: 1.3;
-    pointer-events: none; /* Клик сквозь текст, чтоб не мешал */
+    pointer-events: none;
     color: var(--text-color);
 }
 
@@ -181,12 +181,38 @@ input[type="number"] {
 .toast-info { background-color: #5352ed; }
 
 /* ==========================================
-   ИГРА 1: МИНЫ (MINES)
+   ИГРА 1: МИНЫ (MINES) — ИСПРАВЛЕНО
    ========================================== */
-.mines-grid { display: grid; grid-template-columns: repeat(5, 55px); gap: 8px; }
-.mine-cell { width: 55px; height: 55px; background-color: var(--card-bg); border: 2px solid var(--border-color); border-radius: 6px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; }
-.mine-cell.revealed-gem { background-color: rgba(46, 213, 115, 0.2); border-color: #2ed573; }
-.mine-cell.revealed-mine { background-color: rgba(255, 71, 87, 0.2); border-color: #ff4757; }
+.mines-grid { 
+    display: grid; 
+    grid-template-columns: repeat(5, 1fr); 
+    gap: 8px; 
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+}
+/* Поддержка обоих вариантов классов ячеек для надежности */
+.mine-cell, .mines-cell { 
+    aspect-ratio: 1;
+    background-color: var(--card-bg); 
+    border: 2px solid var(--border-color); 
+    border-radius: 8px; 
+    cursor: pointer; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    font-size: 22px; 
+    font-weight: bold; 
+    user-select: none;
+    transition: transform 0.1s, background-color 0.2s;
+}
+.mine-cell:hover, .mines-cell:hover {
+    transform: scale(1.04);
+    background-color: var(--btn-secondary);
+}
+.mine-cell.revealed-gem, .mines-cell.revealed { background-color: rgba(46, 213, 115, 0.2); border-color: #2ed573; }
+.mine-cell.revealed-mine, .mines-cell.mine { background-color: rgba(255, 71, 87, 0.2); border-color: #ff4757; }
+.mines-cell.mine-hidden { opacity: 0.5; background-color: #747d8c; }
 
 /* ==========================================
    ИГРА 2: КРАШ (CRASH)
@@ -199,17 +225,17 @@ input[type="number"] {
 /* ==========================================
    ИГРА 3: ДАЙС (DICE)
    ========================================== */
-.dice-container { display: flex; gap: 20px; }
-.dice-cube { width: 80px; height: 80px; background-color: white; color: #2f3542; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 36px; font-weight: bold; box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+.dice-container { display: flex; justify-content: center; align-items: center; width: 100%; }
+.dice-cube { width: 90px; height: 90px; background-color: white; color: #2f3542; border-radius: 14px; display: flex; justify-content: center; align-items: center; font-size: 38px; font-weight: bold; box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
 
 /* ==========================================
-   ИГРА 4: МОНЕТКА (COINFLIP) - КРУПНАЯ МОНЕТКА
+   ИГРА 4: МОНЕТКА (COINFLIP)
    ========================================== */
 .coin-container {
     perspective: 1000px;
     margin: 40px auto;
-    width: 160px;   /* Большая монетка */
-    height: 160px;  /* Раза в 2 меньше колеса фортуны */
+    width: 160px;   
+    height: 160px;  
 }
 #coin { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; }
 .coin-side { position: absolute; width: 100%; height: 100%; border-radius: 50%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; font-size: 64px; font-weight: bold; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(255,255,255,0.2); border: 5px solid #ffa502; }
@@ -223,30 +249,33 @@ input[type="number"] {
 /* ==========================================
    ИГРА 5: КОЛЕСО ФОРТУНЫ (WHEEL)
    ========================================== */
-.wheel-container { position: relative; width: 320px; height: 320px; }
+.wheel-container { position: relative; width: 320px; height: 320px; display: flex; justify-content: center; align-items: center; }
 #wheel-canvas { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 8px 20px rgba(0,0,0,0.3); border: 6px solid var(--border-color); }
 .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid var(--danger); z-index: 20; }
 
 /* ==========================================
-   ИГРА 6: РУЛЕТКА (ROULETTE)
+   ИГРА 6: РУЛЕТКА (ROULETTE) — ИСПРАВЛЕНО
    ========================================== */
-.roulette-carousel { width: 100%; max-width: 500px; height: 80px; border: 3px solid var(--border-color); border-radius: 8px; position: relative; overflow: hidden; background-color: #141418; }
-.roulette-tape { display: flex; position: absolute; left: 0; top: 0; height: 100%; transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1); }
-.roulette-cell { width: 70px; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; color: white; border-right: 1px solid rgba(255,255,255,0.1); }
-.cell-red { background-color: #ff4757; }
-.cell-black { background-color: #2f3542; }
-.cell-green { background-color: #2ed573; }
+.roulette-carousel { width: 100%; max-width: 500px; height: 80px; border: 3px solid var(--border-color); border-radius: 8px; position: relative; overflow: hidden; background-color: #141418; margin: 0 auto; }
+.roulette-tape { display: flex; position: absolute; left: 0; top: 0; height: 100%; transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1); will-change: transform; }
+.roulette-cell { flex-shrink: 0; width: 70px; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; color: white; border-right: 1px solid rgba(0,0,0,0.2); }
+/* Связка обоих типов классов цветов */
+.cell-red, .c-red { background-color: #ff4757; }
+.cell-black, .c-black { background-color: #2f3542; }
+.cell-green, .c-green { background-color: #2ed573; }
 .roulette-marker { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background-color: #ffa502; z-index: 5; box-shadow: 0 0 10px #ffa502; }
 
 /* ==========================================
    ИГРА 7: СЛОТЫ (SLOTS)
    ========================================== */
-.slots-machine { display: flex; gap: 15px; background-color: #141418; padding: 20px; border-radius: 10px; border: 3px solid var(--border-color); margin-bottom: 20px; }
-.slot-reel { width: 75px; height: 90px; background: linear-gradient(to bottom, #2a2a35, #1e1e24); border: 2px solid var(--border-color); border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 45px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+.slots-machine { display: flex; gap: 15px; background-color: #141418; padding: 20px; border-radius: 10px; border: 3px solid var(--border-color); margin-bottom: 20px; justify-content: center; }
+.slot-reel { width: 75px; height: 90px; background: linear-gradient(to bottom, #2a2a35, #1e1e24); border: 2px solid var(--border-color); border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 45px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); user-select: none; }
 .slots-controls { display: flex; width: 100%; max-width: 300px; gap: 10px; }
 .slots-controls input { flex: 1; }
 
-/* АДАПТИВНОСТЬ ДЛЯ ТЕЛЕФОНОВ */
+/* ==========================================
+   АДАПТИВНОСТЬ ДЛЯ ТЕЛЕФОНОВ
+   ========================================== */
 @media (max-width: 768px) {
     .app-header { flex-direction: column !important; gap: 12px; padding: 12px; text-align: center; height: auto; }
     .header-controls { width: 100%; justify-content: center; flex-wrap: wrap; gap: 8px; }
@@ -263,6 +292,7 @@ input[type="number"] {
     .game-wrapper { flex-direction: column !important; padding: 15px; gap: 20px; min-height: auto; }
     .controls-panel { width: 100%; }
     .board-panel { width: 100%; padding: 25px 5px; }
-    .mines-grid { grid-template-columns: repeat(5, 48px); gap: 6px; }
-    .mine-cell { width: 48px; height: 48px; font-size: 16px; }
+    
+    .mines-grid { grid-template-columns: repeat(5, 1fr); gap: 6px; max-width: 260px; }
+    .mine-cell, .mines-cell { font-size: 16px; }
 }
