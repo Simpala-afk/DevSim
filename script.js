@@ -436,7 +436,8 @@ document.getElementById('crash-btn')?.addEventListener('click', function() {
 
     crashState = { running: true, isStage: 'fly', bet: bet, currentMultiplier: 1.00, crashPoint: generateCrashPoint(), hasBailed: false };
 
-    betInput.disabled = true;
+    let betInputEl = document.getElementById('crash-bet');
+    if (betInputEl) betInputEl.disabled = true;
     this.innerText = 'Забрать выигрыш (x1.00)';
     this.className = 'btn btn-success';
     document.getElementById('crash-status').innerText = 'График растет! Успей вовремя среагировать!';
@@ -608,9 +609,9 @@ function playCoin(choice) {
     }, 1400);
 }
 
-// ==========================================
-// ЛОГИКА ИГРЫ: КОЛЕСО ФОРТУНЫ
-// ==========================================
+// =======================================================
+// ЛОГИКА ИГРЫ: КОЛЕСО ФОРТУНЫ (ИСПРАВЛЕННЫЙ РАССИНХРОН)
+// =======================================================
 const wheelColors = ['#ff4757', '#2ed573', '#ffa502', '#1e90ff', '#2f3542', '#747d8c', '#5352ed', '#a4b0be'];
 const wheelMults = [0, 2, 0.5, 3, 1, 1.5, 0, 5];
 
@@ -656,11 +657,16 @@ function spinWheel() {
     document.getElementById('wheel-status').innerText = 'Колесо фортуны разгоняется...';
 
     let canvas = document.getElementById('wheel-canvas');
+    
+    // 1. Сразу жестко определяем, какой сектор выиграет
     let randSector = Math.floor(Math.random() * 8);
+    let m = wheelMults[randSector];
 
+    // 2. Рассчитываем точный угол остановки. 
+    // Стрелка находится на самом верху (это 270 градусов на тригонометрическом круге канваса).
     let baseSpins = 5; 
     let sectorAngle = 360 / 8;
-    let targetDeg = (baseSpins * 360) + (360 - (randSector * sectorAngle) - (sectorAngle / 2));
+    let targetDeg = (baseSpins * 360) + (270 - (randSector * sectorAngle) - (sectorAngle / 2));
 
     canvas.style.transition = 'transform 3.5s cubic-bezier(0.075, 0.82, 0.165, 1)';
     canvas.style.transform = `rotate(${targetDeg}deg)`;
@@ -669,7 +675,6 @@ function spinWheel() {
         canvas.style.transition = 'none';
         canvas.style.transform = `rotate(${targetDeg % 360}deg)`;
 
-        let m = wheelMults[randSector];
         let prize = bet * m;
         balance += prize;
         saveBalance();
@@ -688,15 +693,17 @@ function spinWheel() {
     }, 3500);
 }
 
-// ==========================================
-// ЛОГИКА ИГРЫ: РУЛЕТКА (ROULETTE)
-// ==========================================
+// =======================================================
+// ЛОГИКА ИГРЫ: РУЛЕТКА (ИСПРАВЛЕННЫЙ РАССИНХРОН)
+// =======================================================
 const rTapePattern = ['green','red','black','red','black','red','black','red','black','red','black','red','black','red','black'];
+
 function initRouletteCarousel() {
     let tape = document.getElementById('roulette-container-tape');
     if (!tape) return;
     tape.innerHTML = '';
-    for (let i = 0; i < 3; i++) {
+    // Генерируем длинную ленту из 5 повторений, чтобы анимации было куда крутиться
+    for (let i = 0; i < 5; i++) {
         rTapePattern.forEach(color => {
             let item = document.createElement('div');
             item.className = `roulette-cell c-${color}`;
@@ -725,10 +732,17 @@ function placeRouletteBet(colorChoice) {
     tape.style.transition = 'none';
     tape.style.transform = 'translateX(0px)';
 
-    let targetIdx = 15 + Math.floor(Math.random() * 15);
+    // Выбираем ячейку во 2-м или 3-м повторении ленты (чтобы крутилось долго)
+    let targetIdx = 30 + Math.floor(Math.random() * 15);
     let cellWidth = 70; 
-    let centerOffset = 210; 
-    let finalShift = (targetIdx * cellWidth) - centerOffset + Math.floor(Math.random() * 40 + 15);
+    
+    // Вычисляем точное смещение до центра карусели
+    let carouselWidth = document.querySelector('.roulette-carousel')?.offsetWidth || 420;
+    let centerOffset = (carouselWidth / 2) - (cellWidth / 2);
+    
+    // Добавляем легкий рандом внутри самой ячейки (от 5 до 65 пикселей), чтобы стрелка не вставала идеально по центру
+    let innerCellRandom = Math.floor(Math.random() * 60) + 5;
+    let finalShift = (targetIdx * cellWidth) - centerOffset + innerCellRandom;
 
     setTimeout(() => {
         tape.style.transition = 'transform 4s cubic-bezier(0.1, 0.8, 0.1, 1)';
@@ -736,18 +750,21 @@ function placeRouletteBet(colorChoice) {
     }, 20);
 
     setTimeout(() => {
+        // Цвет определяется строго по индексу ячейки, к которой приехала анимация
         let actualColor = rTapePattern[targetIdx % 15];
         let isWin = actualColor === colorChoice;
         let mult = actualColor === 'green' ? 14 : 2;
+
+        let colorRu = actualColor === 'red' ? 'КРАСНОЕ' : actualColor === 'black' ? 'ЧЁРНОЕ' : 'ЗЕЛЁНОЕ';
 
         if (isWin) {
             let prize = bet * mult;
             balance += prize;
             saveBalance();
-            document.getElementById('roulette-status').innerText = `🎉 Победа! Выпал цвет: ${actualColor.toUpperCase()} (x${mult}). Вы выиграли +${prize.toFixed(2)} ₽`;
+            document.getElementById('roulette-status').innerText = `🎉 Победа! Выпал цвет: ${colorRu} (x${mult}). Вы выиграли +${prize.toFixed(2)} ₽`;
             showNotification(`Рулетка: Выпал ${actualColor}! +${prize.toFixed(2)} ₽`, "success");
         } else {
-            document.getElementById('roulette-status').innerText = `📉 Слив! Выпал цвет: ${actualColor.toUpperCase()}. Ваша ставка проиграла.`;
+            document.getElementById('roulette-status').innerText = `📉 Слив! Выпал цвет: ${colorRu}. Ваша ставка проиграла.`;
             showNotification(`Рулетка: Выпал ${actualColor}! Минус ставка.`, "danger");
         }
         isRouletteSpinning = false;
@@ -852,32 +869,25 @@ function returnToMainDashboard() {
 }
 
 // Генерация карточек товаров в Магазине Бизнесов
-// Функция отрисовки доступного для покупки бизнеса на Рынке
 function renderMarket() {
-    // Находим три твоих реальных контейнера из index.html
     const catSmall = document.getElementById('cat-small');
     const catMedium = document.getElementById('cat-medium');
     const catLarge = document.getElementById('cat-large');
 
-    // Если хоть одного нет на странице, прерываем выполнение
     if (!catSmall || !catMedium || !catLarge) return;
 
-    // Очищаем вкладки перед новой отрисовкой
     catSmall.innerHTML = '';
     catMedium.innerHTML = '';
     catLarge.innerHTML = '';
 
-    // Безопасно загружаем данные
     const localBusinesses = JSON.parse(localStorage.getItem('user_businesses')) || [];
 
-    // 1. Считаем, сколько бизнесов куплено по категориям
     const countOwned = {
         small: localBusinesses.filter(b => b.tier === 'small').length,
         medium: localBusinesses.filter(b => b.tier === 'medium').length,
         large: localBusinesses.filter(b => b.tier === 'large').length
     };
 
-    // 2. Считаем выигранные слоты в порту
     const wonSlots = JSON.parse(localStorage.getItem('won_business_slots')) || [];
     const countBonusSlots = {
         small: wonSlots.filter(s => s === 'slot_germany').length,
@@ -885,17 +895,14 @@ function renderMarket() {
         large: wonSlots.filter(s => s === 'slot_italy').length
     };
 
-    // 3. Получаем базовые слоты
     let slotsData = JSON.parse(localStorage.getItem('player_business_slots')) || { small: 0, medium: 0, large: 0 };
 
-    // 4. Итого доступно слотов
     const totalSlots = {
         small: (slotsData.small || 0) + countBonusSlots.small,
         medium: (slotsData.medium || 0) + countBonusSlots.medium,
         large: (slotsData.large || 0) + countBonusSlots.large
     };
 
-    // Генерируем карточки для каждой категории из базы данных
     for (let tier in businessDatabase) {
         let tierHtml = '';
 
@@ -913,7 +920,6 @@ function renderMarket() {
                 btnText = `Недостаточно средств (${biz.cost.toLocaleString('ru-RU')} ₽)`;
             }
 
-            // Используем твои CSS классы из стилей: biz-card, biz-title, biz-price, biz-info
             tierHtml += `
                 <div class="biz-card tier-${tier}">
                     <div class="biz-title">${biz.name}</div>
@@ -930,7 +936,6 @@ function renderMarket() {
             `;
         });
 
-        // Раскладываем сгенерированный HTML по соответствующим вкладкам
         if (tier === 'small') catSmall.innerHTML = tierHtml;
         if (tier === 'medium') catMedium.innerHTML = tierHtml;
         if (tier === 'large') catLarge.innerHTML = tierHtml;
@@ -939,23 +944,19 @@ function renderMarket() {
 
 // Обработчик кнопки покупки бизнеса
 function buyBusiness(tier, id) {
-    // 1. Ищем бизнес в базе данных по правильному тиру (small, medium, large)
     const template = businessDatabase[tier] ? businessDatabase[tier].find(b => b.id === id) : null;
     if (!template) {
         console.error(`Бизнес с id ${id} в категории ${tier} не найден!`);
         return;
     }
 
-    // 2. ПРОВЕРКА КУПЛЕННЫХ В КОНТЕЙНЕРАХ СЛОТОВ
     let slotsData = JSON.parse(localStorage.getItem('player_business_slots')) || { small: 0, medium: 0, large: 0 };
     let wonSlots = JSON.parse(localStorage.getItem('won_business_slots')) || [];
     
-    // Связываем категории рынка с типами слотов из контейнеров
     let slotType = "slot_germany";
     if (tier === "medium") slotType = "slot_dubai";
     if (tier === "large") slotType = "slot_italy";
 
-    // Общее количество доступных слотов = базовые + выигранные в порту
     let currentSlots = (slotsData[tier] || 0) + wonSlots.filter(s => s === slotType).length;
     let activeInTier = myBusinesses.filter(b => b.tier === tier).length;
 
@@ -964,13 +965,11 @@ function buyBusiness(tier, id) {
         return;
     }
 
-    // 3. Проверяем баланс игрока
     if (balance < template.cost) {
         showNotification("Недостаточно средств!", "error");
         return;
     }
 
-    // 4. Условия последовательности для СРЕДНЕГО бизнеса
     if (tier === 'medium') {
         const hasSmall = myBusinesses.some(b => b.tier === 'small');
         const hasDubaiSlot = localStorage.getItem('slot_dubai') === 'true' || wonSlots.includes('slot_dubai');
@@ -985,7 +984,6 @@ function buyBusiness(tier, id) {
         }
     }
 
-    // 5. Условия последовательности для КРУПНОГО бизнеса
     if (tier === 'large') {
         const hasMedium = myBusinesses.some(b => b.tier === 'medium');
         const hasItalySlot = localStorage.getItem('slot_italy') === 'true' || wonSlots.includes('slot_italy');
@@ -1000,7 +998,6 @@ function buyBusiness(tier, id) {
         }
     }
 
-    // 6. Списание денег и добавление бизнеса
     balance -= template.cost;
     saveBalance();
 
@@ -1021,7 +1018,7 @@ function buyBusiness(tier, id) {
     renderMyBusinesses();
 }
 
-// ПОЛНОСТЬЮ ОБНОВЛЕННАЯ ГЕНЕРАЦИЯ ИНТЕРФЕЙСА ВКЛАДКИ "МОЙ БИЗНЕС" С ИНВЕНТАРЕМ НАЛОГОВ
+// ГЕНЕРАЦИЯ ИНТЕРФЕЙСА ВКЛАДКИ "МОЙ БИЗНЕС" С ИНВЕНТАРЕМ НАЛОГОВ
 function renderMyBusinesses() {
     const container = document.getElementById('my-business-content-area');
     if (!container) return;
@@ -1029,7 +1026,7 @@ function renderMyBusinesses() {
     if (myBusinesses.length === 0) {
         container.innerHTML = `
             <div class="empty-business-state">
-                <h2>💼 У вас пока нет активного бизнеса</h2>
+                <h2>💼 У вас пока нет activeного бизнеса</h2>
                 <p style="margin: 15px 0; opacity: 0.8;">Бизнес приносит колоссальную пассивную прибыль. Выбивайте скидки на налоги в портах контейнеров, чтобы зарабатывать ещё больше!</p>
                 <button onclick="switchTab('game-buy-business')" class="btn btn-primary" style="padding: 12px 30px;">Перейти в магазин бизнесов 🛒</button>
             </div>
@@ -1037,7 +1034,6 @@ function renderMyBusinesses() {
         return;
     }
 
-    // Загружаем инвентарь налогов, чтобы показать игроку красивую ленту очереди дропа
     const taxInventory = JSON.parse(localStorage.getItem('tax_inventory')) || [];
 
     let html = `
@@ -1050,14 +1046,12 @@ function renderMyBusinesses() {
     `;
     
     myBusinesses.forEach((biz, index) => {
-        // Защита: если у бизнеса в объекте нет текущего налога, ставим базовый
         if (biz.currentTax === undefined) {
             biz.currentTax = 25; 
         }
 
         const cleanIncome = biz.baseIncome * (1 - (biz.currentTax / 100));
 
-        // Вычисляем кулдаун на смену налога (1 день = 86400000 мс)
         const now = Date.now();
         const lastTaxChange = biz.lastTaxChangeTime || 0;
         const msPassed = now - lastTaxChange;
@@ -1111,7 +1105,6 @@ function applyNextTax(index) {
     const biz = myBusinesses[index];
     if (!biz) return;
 
-    // 1. Проверяем суточный кулдаун
     const now = Date.now();
     const lastTaxChange = biz.lastTaxChangeTime || 0;
     const oneDayInMs = 24 * 60 * 60 * 1000;
@@ -1121,40 +1114,33 @@ function applyNextTax(index) {
         return;
     }
 
-    // 2. Проверяем, есть ли налоги в инвентаре
     let taxInventory = JSON.parse(localStorage.getItem('tax_inventory')) || [];
     if (taxInventory.length === 0) {
         showNotification("У вас нет сохраненных налогов в инвентаре!", "danger");
         return;
     }
 
-    // 3. Достаем самый первый (старый) налог из очереди (вырезаем элемент с индексом 0)
     const appliedTax = taxInventory.shift(); 
 
-    // 4. Мутируем параметры бизнеса
     biz.currentTax = appliedTax;
-    biz.lastTaxChangeTime = now; // Фиксируем время для КД
+    biz.lastTaxChangeTime = now; 
 
-    // 5. Записываем изменения в LocalStorage
     localStorage.setItem('tax_inventory', JSON.stringify(taxInventory));
     localStorage.setItem('user_businesses', JSON.stringify(myBusinesses));
 
-    // 6. Обновляем интерфейс и выдаем уведомление
     showNotification(`Налог ${appliedTax}% успешно активирован для "${biz.name}"!`, "success");
     renderMyBusinesses();
 }
 
-// ФУНКЦИЯ ДОБАВЛЕНИЯ НАЛОГА В ИНВЕНТАРЬ ПРИ ВЫИГРЫШЕ (Вызывать в коде контейнеров)
+// ФУНКЦИЯ ДОБАВЛЕНИЯ НАЛОГА В ИНВЕНТАРЬ ПРИ ВЫИГРЫШЕ 
 function rewardTaxDrop(taxPercent) {
     let taxInventory = JSON.parse(localStorage.getItem('tax_inventory')) || [];
     
-    // Вставляем новый дроп строго в КОНЕЦ очереди
     taxInventory.push(taxPercent);
     
     localStorage.setItem('tax_inventory', JSON.stringify(taxInventory));
     showNotification(`Дроп сохранен! Налог ${taxPercent}% добавлен в очередь инвентаря.`, "success");
     
-    // Если открыта вкладка управления бизнесом, сразу перерисуем ленту очереди
     let targetSection = document.getElementById('game-my-business');
     if (targetSection && targetSection.classList.contains('active')) {
         renderMyBusinesses();
@@ -1200,7 +1186,6 @@ function processPassiveIncome() {
     if (myBusinesses.length === 0) return;
 
     myBusinesses.forEach(biz => {
-        // Если налога нет в сохраненном объекте — берем дефолтный 25%
         if (biz.currentTax === undefined) biz.currentTax = 25;
         
         const cleanIncome = biz.baseIncome * (1 - (biz.currentTax / 100));
@@ -1209,7 +1194,6 @@ function processPassiveIncome() {
 
     localStorage.setItem('user_businesses', JSON.stringify(myBusinesses));
     
-    // Если игрок сейчас смотрит на вкладку управления, обновляем счетчики
     let targetSection = document.getElementById('game-my-business');
     if (targetSection && targetSection.classList.contains('active')) {
         renderMyBusinesses();
