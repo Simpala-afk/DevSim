@@ -732,17 +732,17 @@ function placeRouletteBet(colorChoice) {
     tape.style.transition = 'none';
     tape.style.transform = 'translateX(0px)';
 
-    // Выбираем ячейку во 2-м или 3-м повторении ленты (чтобы крутилось долго)
+    // Выбираем случайную целевую ячейку в середине ленты
     let targetIdx = 30 + Math.floor(Math.random() * 15);
     let cellWidth = 70; 
     
-    // Вычисляем точное смещение до центра карусели
+    // Получаем реальную ширину карусели для идеального центрирования
     let carouselWidth = document.querySelector('.roulette-carousel')?.offsetWidth || 420;
-    let centerOffset = (carouselWidth / 2) - (cellWidth / 2);
     
-    // Добавляем легкий рандом внутри самой ячейки (от 5 до 65 пикселей), чтобы стрелка не вставала идеально по центру
-    let innerCellRandom = Math.floor(Math.random() * 60) + 5;
-    let finalShift = (targetIdx * cellWidth) - centerOffset + innerCellRandom;
+    // ИСПРАВЛЕНО: Генерируем сдвиг строго ВНУТРИ границ выбранной ячейки (от 10 до 60px)
+    // Теперь стрелка гарантированно останется внутри целевого сектора и не перескочит на соседний
+    let randomOffsetInsideCell = Math.floor(Math.random() * 50) + 10; 
+    let finalShift = (targetIdx * cellWidth) - (carouselWidth / 2) + randomOffsetInsideCell;
 
     setTimeout(() => {
         tape.style.transition = 'transform 4s cubic-bezier(0.1, 0.8, 0.1, 1)';
@@ -750,7 +750,7 @@ function placeRouletteBet(colorChoice) {
     }, 20);
 
     setTimeout(() => {
-        // Цвет определяется строго по индексу ячейки, к которой приехала анимация
+        // Цвет теперь железно совпадает с тем, что видит игрок
         let actualColor = rTapePattern[targetIdx % 15];
         let isWin = actualColor === colorChoice;
         let mult = actualColor === 'green' ? 14 : 2;
